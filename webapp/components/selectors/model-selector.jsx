@@ -75,7 +75,7 @@ const ModelSelector = ({ selectedModel, setSelectedModel }) => {
               sideOffset={255}
               align="start"
               forceMount
-              className="min-h-[280px]"
+              className="min-h-[280px] hidden md:block"
             >
               <div className="grid gap-2">
                 <h4 className="font-medium leading-none">{peekedModel.name}</h4>
