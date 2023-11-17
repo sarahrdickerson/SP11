@@ -38,13 +38,25 @@ const InputForm = () => {
   const [selectedMood, setSelectedMood] = React.useState(null);
   const [selectedInstruments, setSelectedInstruments] = React.useState(null);
   const [selectedTempo, setSelectedTempo] = React.useState(108);
+  const [generating, setGenerating] = React.useState(false);
 
   const handleGenerate = () => {
-    console.log(selectedModel);
-    console.log(selectedGenre);
-    console.log(selectedMood);
-    console.log(selectedInstruments);
-    console.log(selectedTempo);
+    // console.log(selectedModel);
+    // console.log(selectedGenre);
+    // console.log(selectedMood);
+    // console.log(selectedInstruments);
+    // console.log(selectedTempo);
+
+    setGenerating(true);
+
+    setTimeout(() => {
+      setGenerating(false);
+    }, 3000);
+
+    // Making a fetch request to the backend
+    fetch("http://127.0.0.1:5000/api/generate")
+      .then((response) => response.json())
+      .then((data) => console.log(data));
   };
 
   return (
@@ -83,6 +95,13 @@ const InputForm = () => {
       <div className="flex flex-row justify-end pt-5">
         <Button onClick={handleGenerate}>Generate</Button>
       </div>
+
+      {/* GENERATING DIALOG */}
+      {generating && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow-lg">
+          <p>Generating music...</p>
+        </div>
+      )}
     </div>
   );
 };
