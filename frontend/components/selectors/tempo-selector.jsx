@@ -11,6 +11,11 @@ import { Slider } from "@/components/ui/slider";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 
 const TempoSelector = ({ selectedTempo, setSelectedTempo }) => {
+  const handleTempoChange = (valueArray) => {
+    // If the value is an array, use the first item; otherwise, use the value as is
+    const value = Array.isArray(valueArray) ? valueArray[0] : valueArray;
+    setSelectedTempo(value);
+  };
   return (
     <div className="grid gap-2">
       <div className="flex flex-row justify-between items-center pb-1">
@@ -45,7 +50,7 @@ const TempoSelector = ({ selectedTempo, setSelectedTempo }) => {
         min={40}
         defaultValue={[108]}
         step={1}
-        onValueChange={setSelectedTempo}
+        onValueChange={handleTempoChange}
         className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
         aria-label="Tempo"
       />

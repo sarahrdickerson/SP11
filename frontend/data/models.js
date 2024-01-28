@@ -1,6 +1,6 @@
 export const musicModels = [
   {
-    id: "model-1",
+    id: "audiocraft",
     name: "AudioCraft",
     description:
       "AudioCraft is a versatile and innovative tool for music generation, designed to interpret text-based inputs and translate them into high-fidelity audio. It excels in creating rich, immersive soundscapes and musical compositions.",
@@ -9,7 +9,7 @@ export const musicModels = [
     type: "Music Generation",
   },
   {
-    id: "model-2",
+    id: "dance-diffusion",
     name: "Dance Diffusion",
     description:
       "Dance Diffusion, developed by Harmonai, takes a unique approach to music generation. It specializes in generating original and creative musical pieces, focusing on electronic and dance genres.",
@@ -18,7 +18,7 @@ export const musicModels = [
     type: "Music Generation",
   },
   {
-    id: "model-3",
+    id: "jukebox",
     name: "JukeBox",
     description:
       "JukeBox, created by OpenAI, is a state-of-the-art neural network for music generation. It's known for its ability to imitate various styles and artists, and can even generate music with lyrics.",
@@ -27,7 +27,7 @@ export const musicModels = [
     type: "Music Generation",
   },
   {
-    id: "model-4",
+    id: "musiclm",
     name: "MusicLM",
     description:
       "MusicLM, from Google, stands out for its ability to generate high-quality music from text descriptions. The model leverages joint embeddings of music and corresponding text, making it adept at creating music that aligns closely with descriptive prompts.",

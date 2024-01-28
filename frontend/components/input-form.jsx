@@ -8,6 +8,7 @@ import InstrumentsSelector from "@/components/selectors/instruments-selector";
 import TempoSelector from "@/components/selectors/tempo-selector";
 
 import { musicModels } from "@/data/models";
+import axiosInstance from "@/api/axiosConfig";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -41,22 +42,53 @@ const InputForm = () => {
   const [generating, setGenerating] = React.useState(false);
 
   const handleGenerate = () => {
-    // console.log(selectedModel);
-    // console.log(selectedGenre);
-    // console.log(selectedMood);
-    // console.log(selectedInstruments);
-    // console.log(selectedTempo);
+    // Prepare the data
+    const requestData = {
+      model: selectedModel.id,
+      genre: selectedGenre,
+      mood: selectedMood,
+      instruments: selectedInstruments,
+      tempo: selectedTempo,
+    };
 
+    // Set generating to true to show the generating dialog
     setGenerating(true);
 
-    setTimeout(() => {
-      setGenerating(false);
-    }, 3000);
+    // Make the POST request using Axios
+    axiosInstance
+      .post("/api/generate_request", requestData)
+      .then((response) => {
+        console.log("Success:", response.data);
+        // Handle the response here
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        // Handle the error here
+      })
+      .finally(() => {
+        setGenerating(false);
+      });
 
-    // Making a fetch request to the backend
-    fetch("http://127.0.0.1:5000/api/generate")
-      .then((response) => response.json())
-      .then((data) => console.log(data));
+    // Make the POST request
+    // fetch("http://127.0.0.1:5000/api/generate_request", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(requestData),
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     console.log("Success:", data);
+    //     // You can add additional logic here based on the response
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error:", error);
+    //   })
+    //   .finally(() => {
+    //     // Hide the generating dialog
+    //     setGenerating(false);
+    //   });
   };
 
   return (
