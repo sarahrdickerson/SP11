@@ -33,11 +33,11 @@ def generate():
     return jsonify({"message": "Generating music"})
 
 @app.route('/api/generate/audiogen', methods=['GET', 'POST'])
-def generate():
+def generateFile():
     synthesiser = pipeline("text-to-audio", "facebook/musicgen-small")
     music = synthesiser("lo-fi music with a soothing melody", forward_params={"do_sample": True})
     scipy.io.wavfile.write("musicgen_out.wav", rate=music["sampling_rate"], data=music["audio"])
-    return jsonify({"message": "Generating music"})
+    return send_file("musicgen_out.wav")
 
 if __name__ == '__main__':
     app.run(debug=True)
