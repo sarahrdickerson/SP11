@@ -30,7 +30,7 @@ def hello_world():
     # return jsonify({"message": "Hello, World!"})
     return "<p>Hello, World!</p>"
 
-@app.route('/api/generate_request', methods=['POST'])
+@app.route('/api/generate_request', methods=['POST','GET'])
 def generate_request():
     print("Calling generate request")
     data = request.get_json()
