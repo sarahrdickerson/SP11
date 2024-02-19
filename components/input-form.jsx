@@ -56,7 +56,7 @@ const InputForm = () => {
 
     // Make the POST request using Axios
     axiosInstance
-      .post("/api/python", requestData)
+      .post("/api/generate_request", requestData)
       .then((response) => {
         console.log("Success:", response.data);
         // Handle the response here

@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 
 import InputForm from "@/components/input-form";
 import OutputBox from "@/components/output-box";
-
+import Link from "next/link";
 export default function Home() {
   return (
     <>
@@ -27,6 +27,7 @@ export default function Home() {
         <div className="grid sm:grid-cols-1 md:grid-cols-3 p-5 gap-5 md:gap-0">
           <div className="col-span-1">
             <InputForm />
+            <Link href="/api/python">Test</Link>
           </div>
           <div className="sm:col-span-1 md:col-span-2 md:pl-5">
             <div className="flex flex-col items-center min-h-full ">
