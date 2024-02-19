@@ -25,9 +25,10 @@ CORS(app)
 requestsDb = PyMongo(
     app, uri='mongodb+srv://sarahdickerson:'+ mongo_password + '@cluster0.ltgtmlx.mongodb.net/Requests')
 
-@app.route('/')
+@app.route('/api/python')
 def hello_world():
-    return jsonify({"message": "Hello, World!"})
+    # return jsonify({"message": "Hello, World!"})
+    return "<p>Hello, World!</p>"
 
 @app.route('/api/generate_request', methods=['POST'])
 def generate_request():
