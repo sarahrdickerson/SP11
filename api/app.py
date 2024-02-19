@@ -31,8 +31,10 @@ def hello_world():
 
 @app.route('/api/generate_request', methods=['POST'])
 def generate_request():
+    print("Calling generate request")
     data = request.get_json()
     result = requestsDb.db.requests.insert_one(data)
+    print(f"Result: {result}")
     return jsonify({"message": "Request added successfully!"})
 
 
