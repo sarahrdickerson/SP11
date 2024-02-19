@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://127.0.0.1:5000/", // Your server URL
+  // baseURL: "http://127.0.0.1:5000/", // Your server URL
+  baseURL: "https://sp-11.vercel.app/",
   timeout: 1000, // Request timeout in milliseconds
   headers: {
     "Content-Type": "application/json",
