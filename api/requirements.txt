@@ -19,3 +19,7 @@ python-dotenv==1.0.0
 tomli==2.0.1
 Werkzeug==2.2.3
 zipp==3.14.0
+transformers
+scipy
+torch
+diffusers
