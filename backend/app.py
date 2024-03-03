@@ -8,36 +8,75 @@
 # http://localhost:8000/userdata to see data
 
 from flask import Flask, jsonify, request, send_file
-from flask_pymongo import PyMongo
+from pymongo import MongoClient
 import os
 # from dotenv import load_dotenv
 from flask_cors import CORS
-from transformers import pipeline
+from transformers import pipeline, AutoProcessor, MusicgenForConditionalGeneration
 import scipy
+import gridfs
+from diffusers import DiffusionPipeline
 
 # load_dotenv('.env.local')
 # mongo_password = os.getenv('MONGO_PASSWORD')
-mongo_password='xzk6BaBfEVE5hP0V'
+mongo_password = 'xzk6BaBfEVE5hP0V'
 
 app = Flask(__name__)
 CORS(app)
-mongo = PyMongo(
-    app, uri='mongodb+srv://sarahdickerson:'+ mongo_password + '@cluster0.ltgtmlx.mongodb.net/Requests')
+# mongo = PyMongo(app, uri='mongodb+srv://sarahdickerson:' + mongo_password + '@cluster0.ltgtmlx.mongodb.net/Requests')
+client = MongoClient('mongodb+srv://sarahdickerson:' + mongo_password + '@cluster0.ltgtmlx.mongodb.net')
+db = client["Music"]
+fs = gridfs.GridFS(db)
+coll = db["music"]
+
 
 @app.route('/')
 def hello_world():
     return jsonify({"message": "Hello, World!"})
 
+
 @app.route('/api/generate', methods=['GET', 'POST'])
 def generate():
     return jsonify({"message": "Generating music"})
 
-@app.route('/api/generate/audiogen', methods=['GET', 'POST'])
+
+@app.route('/api/generate/MusicGen', methods=['POST'])
 def generateFile():
-    synthesiser = pipeline("text-to-audio", "facebook/musicgen-small")
-    music = synthesiser("lo-fi music with a soothing melody", forward_params={"do_sample": True})
-    scipy.io.wavfile.write("musicgen_out.wav", rate=music["sampling_rate"], data=music["audio"])
-    return send_file("musicgen_out.wav")
+    incoming = request.form.get('query')
+    processor = AutoProcessor.from_pretrained("facebook/musicgen-small")
+    model = MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-small")
+
+    inputs = processor(
+        text=[incoming],
+        padding=True,
+        return_tensors="pt",
+    )
+
+    audio_values = model.generate(**inputs, max_new_tokens=256)
+    sampling_rate = model.config.audio_encoder.sampling_rate
+    scipy.io.wavfile.write("musicgen_out.wav", rate=sampling_rate, data=audio_values[0, 0].numpy())
+
+    fs.put(open('musicgen_out.wav','rb'))
+
+    return jsonify({"message": "Generate Successful"})
+
+
+
+@app.route('/api/generate/AudioGen',  methods=['GET', 'POST'])
+def generateAudioGen():
+    model_id = "harmonai/jmann-large-580k"
+    pipe = DiffusionPipeline.from_pretrained(model_id)
+    pipe = pipe.to("cuda")
+
+    audios = pipe(audio_length_in_s=4.0).audios
+
+# To save locally
+    for i, audio in enumerate(audios):
+        scipy.io.wavfile.write(f"test_{i}.wav", pipe.unet.sample_rate, audio.transpose())
+        fs.put(open(f"test_{i}.wav",'rb'))
+
+    return jsonify({"message": "Generate Successful"})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
