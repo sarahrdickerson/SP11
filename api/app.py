@@ -105,14 +105,11 @@ def generateAudioGen():
 @app.route('/api/download/<file_id>', methods=['GET'])
 def download(file_id):
     try:
-        file_string = coll.find_one({"_id": ObjectId(file_id)})
-        # print("file string: " + file_string)
-        binary_data = file_string['file']
-        buffer = BytesIO(binary_data)
-        buffer.seek(0)
-        # print("buffer: " + buffer)
-        return send_file(buffer, as_attachment=True, mimetype='audio/wav', download_name='musicgen_out.wav')
-        # return send_file(file, as_attachment=True)
+        file_string = coll.find_one({"_id": ObjectId(file_id)}) # retrieve encoded file from mongo
+        binary_data = file_string['file'] # get the binary data string
+        buffer = BytesIO(binary_data) # create a buffer with the audio data
+        buffer.seek(0) # start reading buffer from beginning
+        return send_file(buffer, as_attachment=True, mimetype='audio/wav', download_name='musicgen_out.wav') # send buffer as wav file
     except Exception as e:
         print (e)   
         return jsonify({"message": "File not found", "error": str(e)})
