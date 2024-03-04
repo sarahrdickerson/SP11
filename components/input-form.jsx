@@ -6,6 +6,8 @@ import GenreSelector from "@/components/selectors/genre-selector";
 import MoodSelector from "@/components/selectors/mood-selector";
 import InstrumentsSelector from "@/components/selectors/instruments-selector";
 import TempoSelector from "@/components/selectors/tempo-selector";
+import GeneralInputSelector from "@/components/selectors/general-input-selector";
+import LengthSelector from "@/components/selectors/length-selector";
 
 import { musicModels } from "@/data/models";
 import axiosInstance from "@/api/axiosConfig";
@@ -35,20 +37,24 @@ import { Textarea } from "@/components/ui/textarea";
 
 const InputForm = () => {
   const [selectedModel, setSelectedModel] = React.useState(musicModels[0]);
+  const [selectedInput, setSelectedInput] = React.useState(null);
   const [selectedGenre, setSelectedGenre] = React.useState(null);
   const [selectedMood, setSelectedMood] = React.useState(null);
   const [selectedInstruments, setSelectedInstruments] = React.useState(null);
   const [selectedTempo, setSelectedTempo] = React.useState(108);
+  const [selectedLength, setSelectedLength] = React.useState(null);
   const [generating, setGenerating] = React.useState(false);
 
   const handleGenerate = () => {
     // Prepare the data
     const requestData = {
       model: selectedModel.id,
+      input: selectedInput,
       genre: selectedGenre,
       mood: selectedMood,
       instruments: selectedInstruments,
       tempo: selectedTempo,
+      length: selectedLength,
     };
 
     // Set generating to true to show the generating dialog
@@ -99,6 +105,12 @@ const InputForm = () => {
         setSelectedModel={setSelectedModel}
       />
 
+      {/* GENERAL INPUT */}
+      <GeneralInputSelector
+        selectedInput={selectedInput}
+        setSelectedInput={setSelectedInput}
+      />
+
       {/* GENRE */}
       <GenreSelector
         selectedGenre={selectedGenre}
@@ -115,6 +127,12 @@ const InputForm = () => {
       <InstrumentsSelector
         selectedInstruments={selectedInstruments}
         setSelectedInstruments={setSelectedInstruments}
+      />
+
+      {/* LENGTH */}
+      <LengthSelector
+        selectedLength={selectedLength}
+        setSelectedLength={setSelectedLength}
       />
 
       {/* TEMPO */}
