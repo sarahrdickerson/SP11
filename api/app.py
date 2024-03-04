@@ -56,7 +56,7 @@ def generate():
 
 @app.route('/api/generate/MusicGen', methods=['POST'])
 def generateFile():
-    incoming = request.form.get('query')
+    incoming = request.get_json()['query']
     processor = AutoProcessor.from_pretrained("facebook/musicgen-small")
     model = MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-small")
 
