@@ -6,7 +6,7 @@
 # .\.venv\Scripts\activate
 # flask run --port=8000
 # http://localhost:8000/userdata to see data
-
+import bson
 from flask import Flask, jsonify, request, send_file
 from pymongo import MongoClient
 from flask_pymongo import PyMongo
@@ -27,7 +27,7 @@ mongo_password = 'xzk6BaBfEVE5hP0V'
 app = Flask(__name__)
 CORS(app)
 requestsDb = PyMongo(
-    app, uri='mongodb+srv://sarahdickerson:'+ mongo_password + '@cluster0.ltgtmlx.mongodb.net/Requests')
+    app, uri='mongodb+srv://sarahdickerson:' + mongo_password + '@cluster0.ltgtmlx.mongodb.net/Requests')
 # mongo = PyMongo(app, uri='mongodb+srv://sarahdickerson:' + mongo_password + '@cluster0.ltgtmlx.mongodb.net/Requests')
 client = MongoClient('mongodb+srv://sarahdickerson:' + mongo_password + '@cluster0.ltgtmlx.mongodb.net')
 db = client["Music"]
@@ -40,7 +40,8 @@ def hello_world():
     # return jsonify({"message": "Hello, World!"})
     return "<p>Hello, World!</p>"
 
-@app.route('/api/generate_request', methods=['POST','GET'])
+
+@app.route('/api/generate_request', methods=['POST', 'GET'])
 def generate_request():
     print("Calling generate request")
     data = request.get_json()
@@ -70,13 +71,13 @@ def generateFile():
     sampling_rate = model.config.audio_encoder.sampling_rate
     scipy.io.wavfile.write("musicgen_out.wav", rate=sampling_rate, data=audio_values[0, 0].numpy())
 
-    fs.put(open('musicgen_out.wav','rb'))
+    # fs.put(open('musicgen_out.wav','rb'))
+    coll.insert_one({"file": open('musicgen_out.wav', 'rb').read(),"name": "test"})
 
     return jsonify({"message": "Generate Successful"})
 
 
-
-@app.route('/api/generate/AudioGen',  methods=['GET', 'POST'])
+@app.route('/api/generate/AudioGen', methods=['GET', 'POST'])
 def generateAudioGen():
     model_id = "harmonai/jmann-large-580k"
     pipe = DiffusionPipeline.from_pretrained(model_id)
@@ -84,10 +85,10 @@ def generateAudioGen():
 
     audios = pipe(audio_length_in_s=4.0).audios
 
-# To save locally
+    # To save locally
     for i, audio in enumerate(audios):
         scipy.io.wavfile.write(f"test_{i}.wav", pipe.unet.sample_rate, audio.transpose())
-        fs.put(open(f"test_{i}.wav",'rb'))
+        fs.put(open(f"test_{i}.wav", 'rb'))
 
     return jsonify({"message": "Generate Successful"})
 
