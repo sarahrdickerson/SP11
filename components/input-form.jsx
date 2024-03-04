@@ -49,7 +49,7 @@ const InputForm = () => {
     // Prepare the data
     const requestData = {
       model: selectedModel.id,
-      input: selectedInput,
+      query: selectedInput,
       genre: selectedGenre,
       mood: selectedMood,
       instruments: selectedInstruments,
@@ -62,7 +62,8 @@ const InputForm = () => {
 
     // Make the POST request using Axios
     axiosInstance
-      .post("/api/generate_request", requestData)
+      // .post("/api/generate_request", requestData)
+      .post("/api/generate/MusicGen", requestData)
       .then((response) => {
         console.log("Success:", response.data);
         // Handle the response here
