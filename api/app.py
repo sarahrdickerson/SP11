@@ -46,8 +46,9 @@ def generate_request():
     print("Calling generate request")
     data = request.get_json()
     result = requestsDb.db.requests.insert_one(data)
-    print(f"Result: {result}")
-    return jsonify({"message": "Request added successfully!"})
+    file_id = result.inserted_id
+    print(f"Result: {result} File ID: {file_id}")
+    return jsonify({"message": "Request added successfully!", "file_id": str(file_id)})
 
 
 @app.route('/api/generate', methods=['GET', 'POST'])
@@ -73,9 +74,10 @@ def generateFile():
     scipy.io.wavfile.write("musicgen_out.wav", rate=sampling_rate, data=audio_values[0, 0].numpy())
 
     # fs.put(open('musicgen_out.wav','rb'))
-    coll.insert_one({"file": open('musicgen_out.wav', 'rb').read(),"name": "test"})
+    result = coll.insert_one({"file": open('musicgen_out.wav', 'rb').read(),"name": "test"})
+    file_id = result.inserted_id
 
-    return jsonify({"message": "Generate Successful"})
+    return jsonify({"message": "Generate Successful", "file_id": str(file_id)})
 
 
 @app.route('/api/generate/AudioGen', methods=['GET', 'POST'])

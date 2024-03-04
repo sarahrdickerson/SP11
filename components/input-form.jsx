@@ -45,6 +45,8 @@ const InputForm = () => {
   const [selectedLength, setSelectedLength] = React.useState(null);
   const [generating, setGenerating] = React.useState(false);
 
+  const [currentFileId, setCurrentFileId] = React.useState(null);
+
   const handleGenerate = () => {
     // Prepare the data
     const requestData = {
@@ -62,10 +64,12 @@ const InputForm = () => {
 
     // Make the POST request using Axios
     axiosInstance
-      // .post("/api/generate_request", requestData)
-      .post("/api/generate/MusicGen", requestData)
+      .post("/api/generate_request", requestData)
+      // .post("/api/generate/MusicGen", requestData)
       .then((response) => {
         console.log("Success:", response.data);
+        setCurrentFileId(response.data.file_id);
+        console.log(response.data.file_id);
         // Handle the response here
       })
       .catch((error) => {
