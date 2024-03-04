@@ -63,44 +63,24 @@ const InputForm = () => {
     // Set generating to true to show the generating dialog
     setGenerating(true);
 
+    console.log("request data: ", requestData);
     // Make the POST request using Axios
     axiosInstance
       // .post("/api/generate_request", requestData)
-      .post("/api/generate/MusicGen", requestData)
+      .post("/api/generate/MusicGen", requestData, { timeout: 120000 })
       .then((response) => {
         console.log("Success:", response.data);
+        console.log("Setting file ID to:", response.data.file_id);
         setCurrentFileId(response.data.file_id);
         console.log(response.data.file_id);
         // Handle the response here
+        setGenerating(false);
       })
       .catch((error) => {
         console.error("Error:", error);
         // Handle the error here
-      })
-      .finally(() => {
         setGenerating(false);
       });
-
-    // Make the POST request
-    // fetch("http://127.0.0.1:5000/api/generate_request", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(requestData),
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     console.log("Success:", data);
-    //     // You can add additional logic here based on the response
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error:", error);
-    //   })
-    //   .finally(() => {
-    //     // Hide the generating dialog
-    //     setGenerating(false);
-    //   });
   };
 
   return (

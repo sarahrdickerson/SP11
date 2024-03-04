@@ -17,6 +17,9 @@ from bson import ObjectId
 
 from transformers import pipeline, AutoProcessor, MusicgenForConditionalGeneration
 import scipy
+from scipy import io
+from scipy.io import wavfile
+
 import gridfs
 from diffusers import DiffusionPipeline
 
@@ -80,6 +83,7 @@ def generateFile():
     result = coll.insert_one({"file": open('musicgen_out.wav', 'rb').read(),"name": "test"})
     file_id = result.inserted_id
 
+    print(f"Result: {result} File ID: {file_id}")
     return jsonify({"message": "Generate Successful", "file_id": str(file_id)})
 
 
@@ -102,13 +106,15 @@ def generateAudioGen():
 def download(file_id):
     try:
         file_string = coll.find_one({"_id": ObjectId(file_id)})
-        binary_data = file_string['test1']
+        # print("file string: " + file_string)
+        binary_data = file_string['file']
         buffer = BytesIO(binary_data)
         buffer.seek(0)
-        print(buffer)
+        # print("buffer: " + buffer)
         return send_file(buffer, as_attachment=True, mimetype='audio/wav', download_name='musicgen_out.wav')
         # return send_file(file, as_attachment=True)
     except Exception as e:
+        print (e)   
         return jsonify({"message": "File not found", "error": str(e)})
     
 if __name__ == '__main__':

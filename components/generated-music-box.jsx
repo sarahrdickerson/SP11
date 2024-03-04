@@ -14,6 +14,10 @@ import { FileIdContext } from "@/context/fileIdContext";
 const GeneratedMusicBox = () => {
   const { currentFileId } = React.useContext(FileIdContext);
 
+  React.useEffect(() => {
+    console.log("Current File ID updated:", currentFileId);
+  }, [currentFileId]);
+
   const handleWavDownload = async () => {
     console.log("Download Wav");
     console.log(currentFileId);
@@ -24,8 +28,10 @@ const GeneratedMusicBox = () => {
     // }
 
     try {
-      // const res = await fetch("/api/download/${currentFileId}");
-      const res = await fetch(`/api/download/${"65e55397c66cc84d45576e6c"}`);
+      const res = await fetch(`/api/download/${currentFileId}`);
+      console.log(currentFileId);
+      // const res = await fetch(`/api/download/${"65e55397c66cc84d45576e6c"}`);
+      // const res = await fetch(`/api/download/${"65e5fd8d478be54296f5a478"}`);
       if (res.status === 200) {
         console.log("Content-Type:", res.headers.get("Content-Type")); // Log the response content type
 
