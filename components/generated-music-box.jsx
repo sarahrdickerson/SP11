@@ -14,19 +14,32 @@ import { FileIdContext } from "@/context/fileIdContext";
 const GeneratedMusicBox = () => {
   const { currentFileId } = React.useContext(FileIdContext);
 
-  const handleMp3Download = async () => {
-    console.log("Download MP3");
+  const handleWavDownload = async () => {
+    console.log("Download Wav");
     console.log(currentFileId);
 
+    // if (!currentFileId) {
+    //   console.log("No file ID");
+    //   return;
+    // }
+
     try {
-      const res = await fetch("/api/download/${currentFileId}");
+      // const res = await fetch("/api/download/${currentFileId}");
+      const res = await fetch(`/api/download/${"65e55397c66cc84d45576e6c"}`);
       if (res.status === 200) {
-        const blob = await res.blob();
+        console.log("Content-Type:", res.headers.get("Content-Type")); // Log the response content type
+
+        const blob = await res.blob(); // Read the stream here
+        console.log(blob); // Log the blob object, not res.blob()
+
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "generated_music.mp3";
+        a.download = "generated_music.wav";
+        document.body.appendChild(a); // Append the anchor to the body
         a.click();
+        document.body.removeChild(a); // Clean up by removing the anchor
+        URL.revokeObjectURL(url); // Release the object URL
       } else {
         console.log("Download failed");
       }
@@ -48,8 +61,8 @@ const GeneratedMusicBox = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent sideOffset={5} align="end">
             {/* <DropdownMenuItem>Download MIDI</DropdownMenuItem> */}
-            <DropdownMenuItem onClick={handleMp3Download}>
-              Download MP3
+            <DropdownMenuItem onClick={handleWavDownload}>
+              Download wav
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

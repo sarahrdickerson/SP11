@@ -20,6 +20,9 @@ import scipy
 import gridfs
 from diffusers import DiffusionPipeline
 
+from io import BytesIO
+import base64
+
 # load_dotenv('.env.local')
 # mongo_password = os.getenv('MONGO_PASSWORD')
 mongo_password = 'xzk6BaBfEVE5hP0V'
@@ -98,8 +101,13 @@ def generateAudioGen():
 @app.route('/api/download/<file_id>', methods=['GET'])
 def download(file_id):
     try:
-        file = coll.find_one({"_id": ObjectId(file_id)})
-        return send_file(file, as_attachment=True)
+        file_string = coll.find_one({"_id": ObjectId(file_id)})
+        binary_data = file_string['test1']
+        buffer = BytesIO(binary_data)
+        buffer.seek(0)
+        print(buffer)
+        return send_file(buffer, as_attachment=True, mimetype='audio/wav', download_name='musicgen_out.wav')
+        # return send_file(file, as_attachment=True)
     except Exception as e:
         return jsonify({"message": "File not found", "error": str(e)})
     
