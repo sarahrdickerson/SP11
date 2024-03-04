@@ -9,8 +9,32 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FileIdContext } from "@/context/fileIdContext";
 
 const GeneratedMusicBox = () => {
+  const { currentFileId } = React.useContext(FileIdContext);
+
+  const handleMp3Download = async () => {
+    console.log("Download MP3");
+    console.log(currentFileId);
+
+    try {
+      const res = await fetch("/api/download/${currentFileId}");
+      if (res.status === 200) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "generated_music.mp3";
+        a.click();
+      } else {
+        console.log("Download failed");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-5 rounded-lg border-slate-400/25 p-10 border min-h-full min-w-full">
       <div className="flex flex-row justify-between items-center">
@@ -23,8 +47,10 @@ const GeneratedMusicBox = () => {
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent sideOffset={5} align="end">
-            <DropdownMenuItem>Download MIDI</DropdownMenuItem>
-            <DropdownMenuItem>Download MP3</DropdownMenuItem>
+            {/* <DropdownMenuItem>Download MIDI</DropdownMenuItem> */}
+            <DropdownMenuItem onClick={handleMp3Download}>
+              Download MP3
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

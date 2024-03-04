@@ -95,6 +95,13 @@ def generateAudioGen():
 
     return jsonify({"message": "Generate Successful"})
 
-
+@app.route('/api/download/<file_id>', methods=['GET'])
+def download(file_id):
+    try:
+        file = coll.find_one({"_id": ObjectId(file_id)})
+        return send_file(file, as_attachment=True)
+    except Exception as e:
+        return jsonify({"message": "File not found", "error": str(e)})
+    
 if __name__ == '__main__':
     app.run(debug=True)

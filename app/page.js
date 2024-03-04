@@ -1,4 +1,7 @@
+"use client";
 import Image from "next/image";
+import React from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,9 +18,13 @@ import { Input } from "@/components/ui/input";
 import InputForm from "@/components/input-form";
 import OutputBox from "@/components/output-box";
 import Link from "next/link";
+import { FileIdContext } from "@/context/fileIdContext";
+
 export default function Home() {
+  const [currentFileId, setCurrentFileId] = useState(null);
+
   return (
-    <>
+    <FileIdContext.Provider value={{ currentFileId, setCurrentFileId }}>
       <div className=" h-full flex-col md:flex">
         <div className="container flex flex-col items-start justify-between space-y-2 py-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
           <h2 className="text-lg font-semibold">SP11 Music Generator App</h2>
@@ -35,6 +42,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </>
+    </FileIdContext.Provider>
   );
 }

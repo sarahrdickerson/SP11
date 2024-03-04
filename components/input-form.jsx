@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useContext } from "react";
 
 import ModelSelector from "@/components/selectors/model-selector";
 import GenreSelector from "@/components/selectors/genre-selector";
@@ -11,6 +11,7 @@ import LengthSelector from "@/components/selectors/length-selector";
 
 import { musicModels } from "@/data/models";
 import axiosInstance from "@/api/axiosConfig";
+import { FileIdContext } from "@/context/fileIdContext";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,7 +46,7 @@ const InputForm = () => {
   const [selectedLength, setSelectedLength] = React.useState(null);
   const [generating, setGenerating] = React.useState(false);
 
-  const [currentFileId, setCurrentFileId] = React.useState(null);
+  const { setCurrentFileId } = useContext(FileIdContext); // set file ID in context
 
   const handleGenerate = () => {
     // Prepare the data
@@ -64,8 +65,8 @@ const InputForm = () => {
 
     // Make the POST request using Axios
     axiosInstance
-      .post("/api/generate_request", requestData)
-      // .post("/api/generate/MusicGen", requestData)
+      // .post("/api/generate_request", requestData)
+      .post("/api/generate/MusicGen", requestData)
       .then((response) => {
         console.log("Success:", response.data);
         setCurrentFileId(response.data.file_id);
