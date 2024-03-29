@@ -7,7 +7,7 @@
 # flask run --port=8000
 # http://localhost:8000/userdata to see data
 import bson
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, abort
 from pymongo import MongoClient
 from flask_pymongo import PyMongo
 import os
@@ -19,10 +19,12 @@ from transformers import pipeline, AutoProcessor, MusicgenForConditionalGenerati
 import scipy
 import gridfs
 from diffusers import DiffusionPipeline
+import replicate
 
 from io import BytesIO
 import base64
-
+from werkzeug.exceptions import BadRequest
+import werkzeug.exceptions
 # load_dotenv('.env.local')
 # mongo_password = os.getenv('MONGO_PASSWORD')
 mongo_password = 'xzk6BaBfEVE5hP0V'
@@ -37,6 +39,15 @@ db = client["Music"]
 fs = gridfs.GridFS(db)
 coll = db["music"]
 
+
+@app.errorhandler(werkzeug.exceptions.BadRequest)
+def handle_bad_request(e):
+    return 'empty request', 550
+
+
+@app.errorhandler(werkzeug.exceptions.BadRequest)
+def handle_bad_request2(e):
+    return 'wrong/empty length', 551
 
 @app.route('/api/python', methods=['POST', 'GET'])
 def hello_world():
@@ -59,28 +70,92 @@ def generate():
     return jsonify({"message": "Generating music"})
 
 
+# @app.route('/api/generate/MusicGen', methods=['POST'])
+# def generateFile2():
+#     incoming = request.get_json()['query']
+#     length = request.get_json()['length']
+#     processor = AutoProcessor.from_pretrained("facebook/musicgen-large")
+#     model = MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-large")
+#
+#     inputs = processor(
+#         text=[incoming],
+#         padding=True,
+#         return_tensors="pt",
+#     )
+#
+#     audio_values = model.generate(**inputs, max_new_tokens=256)
+#     sampling_rate = model.config.audio_encoder.sampling_rate
+#     scipy.io.wavfile.write("musicgen_out.wav", rate=sampling_rate, data=audio_values[0, 0].numpy())
+#
+#     # fs.put(open('musicgen_out.wav','rb'))
+#     result = coll.insert_one({"file": open('musicgen_out.wav', 'rb').read(),"name": "test"})
+#     file_id = result.inserted_id
+#
+#     return jsonify({"message": "Generate Successful", "file_id": str(file_id)})
+#
 @app.route('/api/generate/MusicGen', methods=['POST'])
-def generateFile():
+def generateFile3():
     incoming = request.get_json()['query']
     length = request.get_json()['length']
-    processor = AutoProcessor.from_pretrained("facebook/musicgen-small")
-    model = MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-small")
+   
+    if len(incoming) == 0:
+        abort(505)
 
-    inputs = processor(
-        text=[incoming],
-        padding=True,
-        return_tensors="pt",
+    if type(length) != int or length == 0:
+        abort(506)
+    output = replicate.run(
+    "meta/musicgen:671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb",
+    input={
+        "top_k": 250,
+        "top_p": 0,
+        "prompt": incoming,
+        "duration": length,
+        "temperature": 1,
+        "continuation": False,
+        "model_version": "melody-large",
+        "output_format": "wav",
+        "continuation_start": 0,
+        "multi_band_diffusion": False,
+        "normalization_strategy": "peak",
+        "classifier_free_guidance": 3
+    }
     )
+    print(output)
 
-    audio_values = model.generate(**inputs, max_new_tokens=256)
-    sampling_rate = model.config.audio_encoder.sampling_rate
-    scipy.io.wavfile.write("musicgen_out.wav", rate=sampling_rate, data=audio_values[0, 0].numpy())
 
-    # fs.put(open('musicgen_out.wav','rb'))
-    result = coll.insert_one({"file": open('musicgen_out.wav', 'rb').read(),"name": "test"})
+    result = coll.insert_one({"file": output,"name": "test"})
     file_id = result.inserted_id
 
-    return jsonify({"message": "Generate Successful", "file_id": str(file_id)})
+    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output)})
+
+
+@app.route('/api/generate/Riffusion', methods=['POST'])
+def generateFile4():
+    incoming = request.get_json()['query']
+    length = request.get_json()['length']
+   
+    if len(incoming) == 0:
+        abort(505)
+
+    if type(length) != int or length == 0:
+        abort(506)
+    input = {"prompt_b": "90's rap"}
+
+    output = replicate.run(
+    "riffusion/riffusion:8cf61ea6c56afd61d8f5b9ffd14d7c216c0a93844ce2d82ac1c9ecc9c7f24e05",
+    input=input
+    ) 
+    print(output)
+
+
+    result = coll.insert_one({"file": output,"name": "test"})
+    file_id = result.inserted_id
+
+    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output)})
+
+
+
+
 
 
 @app.route('/api/generate/AudioGen', methods=['GET', 'POST'])
