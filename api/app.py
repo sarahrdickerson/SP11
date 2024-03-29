@@ -17,6 +17,9 @@ from bson import ObjectId
 
 from transformers import pipeline, AutoProcessor, MusicgenForConditionalGeneration
 import scipy
+from scipy import io
+from scipy.io import wavfile
+
 import gridfs
 from diffusers import DiffusionPipeline
 import replicate
@@ -151,11 +154,9 @@ def generateFile4():
     result = coll.insert_one({"file": output,"name": "test"})
     file_id = result.inserted_id
 
-    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output)})
 
-
-
-
+    print(f"Result: {result} File ID: {file_id}")
+    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicfile": str(output)})
 
 
 @app.route('/api/generate/AudioGen', methods=['GET', 'POST'])
@@ -176,14 +177,13 @@ def generateAudioGen():
 @app.route('/api/download/<file_id>', methods=['GET'])
 def download(file_id):
     try:
-        file_string = coll.find_one({"_id": ObjectId(file_id)})
-        binary_data = file_string['test1']
-        buffer = BytesIO(binary_data)
-        buffer.seek(0)
-        print(buffer)
-        return send_file(buffer, as_attachment=True, mimetype='audio/wav', download_name='musicgen_out.wav')
-        # return send_file(file, as_attachment=True)
+        file_string = coll.find_one({"_id": ObjectId(file_id)}) # retrieve encoded file from mongo
+        binary_data = file_string['file'] # get the binary data string
+        buffer = BytesIO(binary_data) # create a buffer with the audio data
+        buffer.seek(0) # start reading buffer from beginning
+        return send_file(buffer, as_attachment=True, mimetype='audio/wav', download_name='musicgen_out.wav') # send buffer as wav file
     except Exception as e:
+        print (e)   
         return jsonify({"message": "File not found", "error": str(e)})
     
 if __name__ == '__main__':
