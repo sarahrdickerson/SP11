@@ -62,7 +62,7 @@ const GeneratedMusicBox = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div>
-              <DownloadIcon className="h-5 w-5 text-gray-800/25" />
+              <DownloadIcon className="h-5 w-5 text-gray-800/25 cursor-pointer" />
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent sideOffset={5} align="end">

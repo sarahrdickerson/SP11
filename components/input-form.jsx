@@ -33,9 +33,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircledIcon } from "@radix-ui/react-icons";
+import { PlusCircledIcon, ReloadIcon } from "@radix-ui/react-icons";
 import AddExtrasSelector from "@/components/addextras";
 
 const InputForm = () => {
@@ -48,6 +55,29 @@ const InputForm = () => {
   const [selectedLength, setSelectedLength] = React.useState(null);
   const [generating, setGenerating] = React.useState(false);
   const [selectedExtras, setSelectedExtras] = React.useState([]);
+
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  // Add state for error handling
+  const [errors, setErrors] = React.useState({
+    query: false,
+    model: false,
+    length: false,
+  });
+
+  // Validate the required fields
+  const validate = () => {
+    const newErrors = {
+      query: !selectedInput,
+      model: !selectedModel.id,
+      length: !selectedLength,
+    };
+
+    setErrors(newErrors);
+
+    // Return true if there are no errors
+    return !Object.values(newErrors).some((error) => error);
+  };
 
   const { setCurrentFileId } = useContext(FileIdContext); // set file ID in context
 
@@ -66,6 +96,13 @@ const InputForm = () => {
   });
 
   const handleGenerate = () => {
+    setIsLoading(true);
+    // First validate the input
+    if (!validate()) {
+      console.log("Validation failed");
+      setIsLoading(false);
+      return; // Stop the function if validation fails
+    }
     // Prepare the data
     const requestData = {
       query: selectedInput,
@@ -78,25 +115,27 @@ const InputForm = () => {
     });
 
     // Set generating to true to show the generating dialog
-    setGenerating(true);
+    // setGenerating(true);
 
     console.log("request data: ", requestData);
     // Make the POST request using Axios
     axiosInstance
-      // .post("/api/generate_request", requestData)
-      .post("/api/generate/MusicGen", requestData, { timeout: 120000 })
+      .post("/api/generate_request", requestData)
+      // .post("/api/generate/MusicGen", requestData, { timeout: 120000 })
       .then((response) => {
         console.log("Success:", response.data);
         console.log("Setting file ID to:", response.data.file_id);
         setCurrentFileId(response.data.file_id);
         console.log(response.data.file_id);
         // Handle the response here
-        setGenerating(false);
+        // setGenerating(false);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error("Error:", error);
         // Handle the error here
-        setGenerating(false);
+        // setGenerating(false);
+        setIsLoading(false);
       });
   };
 
@@ -148,23 +187,74 @@ const InputForm = () => {
   return (
     <div className="flex flex-col gap-5 rounded-lg  p-10 bg-white">
       {/* GENERAL INPUT */}
-      <GeneralInputSelector
+      {/* <GeneralInputSelector
         selectedInput={selectedInput}
         setSelectedInput={setSelectedInput}
-      />
+      /> */}
+      <div className={errors.query ? "error-border" : ""}>
+        <GeneralInputSelector
+          selectedInput={selectedInput}
+          setSelectedInput={setSelectedInput}
+        />
+        {errors.query && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-red-500 text-sm">
+                  * Prompt is required
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                This field is required.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
 
       {/* <h1 className="font-semibold">Inputs</h1> */}
-      <ModelSelector
-        selectedModel={selectedModel}
-        setSelectedModel={setSelectedModel}
-      />
+      <div className={errors.model ? "error-border" : ""}>
+        <ModelSelector
+          selectedModel={selectedModel}
+          setSelectedModel={setSelectedModel}
+        />{" "}
+        {errors.model && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-red-500 text-sm">
+                  * Model is required
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                This field is required.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
 
       {/* LENGTH */}
-      <LengthSelector
-        selectedLength={selectedLength}
-        setSelectedLength={setSelectedLength}
-      />
-
+      <div className={errors.length ? "error-border" : ""}>
+        <LengthSelector
+          selectedLength={selectedLength}
+          setSelectedLength={setSelectedLength}
+        />
+        {errors.length && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-red-500 text-sm">
+                  * Sample Length is required
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                This field is required.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
       {renderExtras}
 
       {/* Add Extras */}
@@ -173,9 +263,15 @@ const InputForm = () => {
           onAddExtra={handleAddExtra}
           selectedExtras={selectedExtras}
         />
-        <Button onClick={handleGenerate}>Generate</Button>
+        <Button onClick={handleGenerate} disabled={isLoading}>
+          {isLoading ? (
+            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            ""
+          )}
+          Generate
+        </Button>
       </div>
-
       {/* GENERATING DIALOG */}
       {generating && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow-lg">
