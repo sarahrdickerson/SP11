@@ -16,37 +16,49 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/api/axiosConfig";
 
+import { useAuth } from "@/context/authContext";
+
 export function LoginMenu() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useAuth();
 
-  function loginUser() {
-    console.log("Email: ", email);
-    console.log("Password: ", password);
-    // router.push("/dashboard");
+  const loginUser = async () => {
+    const result = await login(email, password);
+    if (result.success) {
+      router.push("/");
+    } else {
+      alert(result.message);
+    }
+  };
 
-    const data = {
-      email: email,
-      password: password,
-    };
+  // function loginUser() {
+  //   console.log("Email: ", email);
+  //   console.log("Password: ", password);
+  //   // router.push("/dashboard");
 
-    console.log("request data: ", data);
-    axiosInstance
-      .post("/api/auth/login", data)
-      .then((res) => {
-        console.log("response: ", res);
-        if (res.data["success"] === true) {
-          console.log("Login successful");
-          router.push("/");
-        } else {
-          alert(res.data["message"]);
-        }
-      })
-      .catch((err) => {
-        console.error("error: ", err);
-      });
-  }
+  //   const data = {
+  //     email: email,
+  //     password: password,
+  //   };
+
+  //   console.log("request data: ", data);
+  //   axiosInstance
+  //     .post("/api/auth/login", data)
+  //     .then((res) => {
+  //       console.log("response: ", res);
+  //       if (res.data["success"] === true) {
+  //         console.log("Login successful");
+  //         router.push("/");
+  //       } else {
+  //         alert(res.data["message"]);
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.error("error: ", err);
+  //     });
+  // }
 
   return (
     <Card>
