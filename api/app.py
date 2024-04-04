@@ -100,6 +100,11 @@ def generate():
 #
 @app.route('/api/generate/MusicGen', methods=['POST'])
 def generateFile3():
+    data = request.get_json()
+    result = requestsDb.db.requests.insert_one(data)
+    file_id = result.inserted_id
+    print(f"Result: {result} File ID: {file_id}")
+    
     incoming = request.get_json()['query']
     length = request.get_json()['length']
    
