@@ -15,16 +15,20 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/api/axiosConfig";
+import { set } from "react-hook-form";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 const RegisterMenu = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
 
   function registerUser() {
     console.log("Registering user");
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      setError("Passwords do not match");
+      // alert("Passwords do not match");
       return;
     }
     const data = {
@@ -40,7 +44,8 @@ const RegisterMenu = () => {
           console.log("User created");
           router.push("/signin");
         } else {
-          alert(res.data["message"]);
+          // alert(res.data["message"]);
+          setError(res.data["message"]);
         }
       })
       .catch((err) => {
@@ -57,6 +62,15 @@ const RegisterMenu = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
+        {error && (
+          <div className="flex flex-row bg-red-500">
+            <div className="text-white flex flex-row gap-2 items-center p-2">
+              <ExclamationTriangleIcon />
+              {error}
+            </div>
+          </div>
+        )}
+        {/* Display error message if any */}
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input

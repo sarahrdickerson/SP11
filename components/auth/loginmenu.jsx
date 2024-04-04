@@ -17,48 +17,24 @@ import { useRouter } from "next/navigation";
 import axiosInstance from "@/api/axiosConfig";
 
 import { useAuth } from "@/context/authContext";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 export function LoginMenu() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useAuth();
+  const [error, setError] = useState("");
 
   const loginUser = async () => {
+    setError("");
     const result = await login(email, password);
     if (result.success) {
       router.push("/");
     } else {
-      alert(result.message);
+      setError(result.message);
     }
   };
-
-  // function loginUser() {
-  //   console.log("Email: ", email);
-  //   console.log("Password: ", password);
-  //   // router.push("/dashboard");
-
-  //   const data = {
-  //     email: email,
-  //     password: password,
-  //   };
-
-  //   console.log("request data: ", data);
-  //   axiosInstance
-  //     .post("/api/auth/login", data)
-  //     .then((res) => {
-  //       console.log("response: ", res);
-  //       if (res.data["success"] === true) {
-  //         console.log("Login successful");
-  //         router.push("/");
-  //       } else {
-  //         alert(res.data["message"]);
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       console.error("error: ", err);
-  //     });
-  // }
 
   return (
     <Card>
@@ -69,6 +45,16 @@ export function LoginMenu() {
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
+        {error && (
+          <div className="flex flex-row bg-red-500">
+            <div className="text-white flex flex-row gap-2 items-center p-2">
+              {" "}
+              <ExclamationTriangleIcon />
+              {error}
+            </div>
+          </div>
+        )}{" "}
+        {/* Display error message if any */}
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input
