@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/authContext";
 const Dashboard = () => {
   const { user } = useAuth();
+  const [isGenerated, setIsGenerated] = React.useState(false);
 
   if (!user) {
     return (
@@ -30,11 +31,11 @@ const Dashboard = () => {
   return (
     <div className="grid sm:grid-cols-1 md:grid-cols-3 p-5 gap-5 md:gap-0">
       <div className="col-span-1">
-        <InputForm />
+        <InputForm onGenerate={() => setIsGenerated(true)} />
       </div>
       <div className="sm:col-span-1 md:col-span-2 md:pl-5">
         <div className="flex flex-col items-center min-h-full ">
-          <OutputBox />
+          <OutputBox isGenerated={isGenerated} />
         </div>
       </div>
     </div>

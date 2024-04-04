@@ -45,7 +45,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PlusCircledIcon, ReloadIcon } from "@radix-ui/react-icons";
 import AddExtrasSelector from "@/components/addextras";
 
-const InputForm = () => {
+const InputForm = ({ onGenerate }) => {
   const [selectedModel, setSelectedModel] = React.useState(musicModels[0]);
   const [selectedInput, setSelectedInput] = React.useState(null);
   const [selectedGenre, setSelectedGenre] = React.useState(null);
@@ -120,8 +120,8 @@ const InputForm = () => {
     console.log("request data: ", requestData);
     // Make the POST request using Axios
     axiosInstance
-      // .post("/api/generate_request", requestData)
-      .post("/api/generate/MusicGen", requestData, { timeout: 120000 })
+      .post("/api/generate_request", requestData)
+      // .post("/api/generate/MusicGen", requestData, { timeout: 120000 })
       .then((response) => {
         console.log("Success:", response.data);
         console.log("Setting file ID to:", response.data.file_id);
@@ -130,6 +130,7 @@ const InputForm = () => {
         // Handle the response here
         // setGenerating(false);
         setIsLoading(false);
+        onGenerate();
       })
       .catch((error) => {
         console.error("Error:", error);

@@ -9,13 +9,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const ChordBox = () => {
+const ChordBox = ({ isInteractive }) => {
   return (
     <div className="flex flex-col gap-5 rounded-lg  p-10  min-h-full min-w-full bg-white">
       <div className="flex flex-row justify-between items-center">
         <h1 className="font-semibold">Chord Information</h1>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild disabled={!isInteractive}>
             <div>
               <DownloadIcon className="h-5 w-5 text-gray-800/25 cursor-pointer" />
             </div>
