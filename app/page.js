@@ -25,11 +25,13 @@ export default function Home() {
 
   return (
     <FileIdContext.Provider value={{ currentFileId, setCurrentFileId }}>
-      <div className=" h-full flex-col md:flex">
+      <div className=" h-full flex-col md:flex bg-[#efefef]">
         <div className="container flex flex-col items-start justify-between space-y-2 py-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
           <h2 className="text-lg font-semibold">SP11 Music Generator App</h2>
+          <Link href="/signin">
+            <Button variant="outline">Sign In</Button>
+          </Link>
         </div>
-        <Separator />
 
         <div className="grid sm:grid-cols-1 md:grid-cols-3 p-5 gap-5 md:gap-0">
           <div className="col-span-1">

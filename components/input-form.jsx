@@ -35,7 +35,8 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
+import { PlusCircledIcon } from "@radix-ui/react-icons";
+import AddExtrasSelector from "@/components/addextras";
 const InputForm = () => {
   const [selectedModel, setSelectedModel] = React.useState(musicModels[0]);
   const [selectedInput, setSelectedInput] = React.useState(null);
@@ -45,20 +46,35 @@ const InputForm = () => {
   const [selectedTempo, setSelectedTempo] = React.useState(108);
   const [selectedLength, setSelectedLength] = React.useState(null);
   const [generating, setGenerating] = React.useState(false);
+  const [selectedExtras, setSelectedExtras] = React.useState([]);
 
   const { setCurrentFileId } = useContext(FileIdContext); // set file ID in context
+
+  const extrasComponents = {
+    Genre: GenreSelector,
+    Mood: MoodSelector,
+    Instruments: InstrumentsSelector,
+    Tempo: TempoSelector,
+    // Add any other extras here
+  };
+  const [extrasState, setExtrasState] = React.useState({
+    genre: "",
+    mood: "",
+    instruments: "",
+    tempo: 120, // Assuming the tempo is a number
+  });
 
   const handleGenerate = () => {
     // Prepare the data
     const requestData = {
-      model: selectedModel.id,
       query: selectedInput,
-      genre: selectedGenre,
-      mood: selectedMood,
-      instruments: selectedInstruments,
-      tempo: selectedTempo,
+      model: selectedModel.id,
       length: selectedLength,
     };
+    selectedExtras.forEach((extra) => {
+      requestData[extra.name.toLowerCase()] =
+        extrasState[extra.name.toLowerCase()];
+    });
 
     // Set generating to true to show the generating dialog
     setGenerating(true);
@@ -66,8 +82,8 @@ const InputForm = () => {
     console.log("request data: ", requestData);
     // Make the POST request using Axios
     axiosInstance
-      // .post("/api/generate_request", requestData)
-      .post("/api/generate/MusicGen", requestData, { timeout: 120000 })
+      .post("/api/generate_request", requestData)
+      // .post("/api/generate/MusicGen", requestData, { timeout: 120000 })
       .then((response) => {
         console.log("Success:", response.data);
         console.log("Setting file ID to:", response.data.file_id);
@@ -83,36 +99,63 @@ const InputForm = () => {
       });
   };
 
-  return (
-    <div className="flex flex-col gap-5 rounded-lg border-slate-400/25 p-10 border">
-      <h1 className="font-semibold">Inputs</h1>
-      <ModelSelector
-        selectedModel={selectedModel}
-        setSelectedModel={setSelectedModel}
-      />
+  const handleAddExtra = (extra) => {
+    setSelectedExtras((prevExtras) => {
+      // Check if the extra is already added
+      if (prevExtras.some((e) => e.name === extra)) return prevExtras;
+      // Add the new extra at the end
+      return [
+        ...prevExtras,
+        { name: extra, Component: extrasComponents[extra] },
+      ];
+    });
+  };
 
+  const handleRemoveExtra = (extraName) => {
+    setSelectedExtras((prevExtras) =>
+      prevExtras.filter((e) => e.name !== extraName)
+    );
+    // You might also want to reset the state for this extra if necessary
+    setExtrasState((prevState) => ({
+      ...prevState,
+      [extraName.toLowerCase()]: "", // Reset to default value
+    }));
+  };
+
+  const updateExtraState = (extraType, value) => {
+    setExtrasState((prevExtrasState) => ({
+      ...prevExtrasState,
+      [extraType.toLowerCase()]: value,
+    }));
+  };
+
+  // Render the extra selectors based on the selected extras
+  const renderExtras = selectedExtras.map((extra) => {
+    const ExtraComponent = extrasComponents[extra.name];
+    return (
+      <ExtraComponent
+        key={extra.name}
+        selected={extrasState[extra.name.toLowerCase()]}
+        setSelected={(value) =>
+          updateExtraState(extra.name.toLowerCase(), value)
+        }
+        onRemove={() => handleRemoveExtra(extra.name)}
+      />
+    );
+  });
+
+  return (
+    <div className="flex flex-col gap-5 rounded-lg  p-10 bg-white">
       {/* GENERAL INPUT */}
       <GeneralInputSelector
         selectedInput={selectedInput}
         setSelectedInput={setSelectedInput}
       />
 
-      {/* GENRE */}
-      <GenreSelector
-        selectedGenre={selectedGenre}
-        setSelectedGenre={setSelectedGenre}
-      />
-
-      {/* MOOD */}
-      <MoodSelector
-        selectedMood={selectedMood}
-        setSelectedMood={setSelectedMood}
-      />
-
-      {/* INSTRUMENTS */}
-      <InstrumentsSelector
-        selectedInstruments={selectedInstruments}
-        setSelectedInstruments={setSelectedInstruments}
+      {/* <h1 className="font-semibold">Inputs</h1> */}
+      <ModelSelector
+        selectedModel={selectedModel}
+        setSelectedModel={setSelectedModel}
       />
 
       {/* LENGTH */}
@@ -121,14 +164,14 @@ const InputForm = () => {
         setSelectedLength={setSelectedLength}
       />
 
-      {/* TEMPO */}
-      <TempoSelector
-        selectedTempo={selectedTempo}
-        setSelectedTempo={setSelectedTempo}
-      />
+      {renderExtras}
 
-      {/* SUBMIT BUTTON */}
-      <div className="flex flex-row justify-end pt-5">
+      {/* Add Extras */}
+      <div className="flex flex-row justify-between place-items-center items-center pt-5">
+        <AddExtrasSelector
+          onAddExtra={handleAddExtra}
+          selectedExtras={selectedExtras}
+        />
         <Button onClick={handleGenerate}>Generate</Button>
       </div>
 

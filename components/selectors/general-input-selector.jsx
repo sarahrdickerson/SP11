@@ -14,7 +14,7 @@ const GeneralInputSelector = ({ selectedInput, setSelectedInput }) => {
   return (
     <div className="grid gap-2">
       <div className="flex flex-row gap-1 items-center">
-        <Label htmlFor="model">General Input</Label>
+        <Label htmlFor="model">Prompt</Label>
         <HoverCard openDelay={200}>
           <HoverCardTrigger asChild>
             <div>
@@ -26,17 +26,14 @@ const GeneralInputSelector = ({ selectedInput, setSelectedInput }) => {
             className="w-[260px] text-sm"
             side="left"
           >
-            Instead of specifying the model, genre, and mood, you can provide a
-            general input to the model. This can be a list of instruments, a
-            chord progression, or a melody. The model will use this input to
-            generate a piece of music.
+            Describe the music you want to generate in a few sentences.
           </HoverCardContent>
         </HoverCard>
       </div>
 
       <Textarea
-        placeholder="Enter a general description (eg. list of instruments, chord progression, melody, etc.)"
-        className="min-h-[80px]"
+        placeholder="A grand orchestral arrangement with thunderous percussion, epic brass fanfares, and soaring strings, creating a cinematic atmosphere fit for a heroic battle"
+        className="min-h-[150px] bg-[#efefef] border-none"
         onChange={(e) => setSelectedInput(e.target.value)}
       />
     </div>

@@ -11,7 +11,7 @@ import {
 
 const ChordBox = () => {
   return (
-    <div className="flex flex-col gap-5 rounded-lg border-slate-400/25 p-10 border min-h-full min-w-full">
+    <div className="flex flex-col gap-5 rounded-lg  p-10  min-h-full min-w-full bg-white">
       <div className="flex flex-row justify-between items-center">
         <h1 className="font-semibold">Chord Information</h1>
         <DropdownMenu>

@@ -41,6 +41,8 @@ client = MongoClient('mongodb+srv://sarahdickerson:' + mongo_password + '@cluste
 db = client["Music"]
 fs = gridfs.GridFS(db)
 coll = db["music"]
+users = client["Users"]
+users_coll = users["users"]
 
 
 @app.errorhandler(werkzeug.exceptions.BadRequest)
@@ -186,5 +188,30 @@ def download(file_id):
         print (e)   
         return jsonify({"message": "File not found", "error": str(e)})
     
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data['email']
+    password = data['password']
+    print(data)
+    user = users_coll.find_one({"email": email})
+    if user is None:
+        return jsonify({"message": "User not found", "success": False})
+    if user['password'] != data['password']:
+        return jsonify({"message": "Password incorrect", "success": False})
+    return jsonify({"message": "Login Successful", "success": True, "user_id": str(user['_id'])})
+
+@app.route('/api/auth/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    email = data['email']
+    password = data['password']
+    user = users_coll.find_one({"email": email})
+    if user is not None:
+        return jsonify({"message": "User already exists", "success": False})
+    result = users_coll.insert_one(data)
+    user_id = result.inserted_id
+    return jsonify({"message": "User added successfully!", "user_id": str(user_id), "success": True})
+
 if __name__ == '__main__':
     app.run(debug=True)

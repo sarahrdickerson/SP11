@@ -62,7 +62,7 @@ const ModelSelector = ({ selectedModel, setSelectedModel }) => {
             role="combobox"
             aria-expanded={open}
             aria-label="Select a model"
-            className="w-[180px] justify-between"
+            className="w-[180px] justify-between bg-[#efefef] hover:bg-[#efefef80] text-popover-foreground hover:text-popover-foreground hover:opacity-100 border-none"
           >
             {selectedModel ? selectedModel.name : "Select a model..."}
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
