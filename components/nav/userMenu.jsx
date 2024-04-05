@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PersonIcon } from "@radix-ui/react-icons";
 import { useAuth } from "@/context/authContext";
+import Link from "next/link";
 const UserMenu = () => {
   const { logout } = useAuth();
   const [userEmail, setUserEmail] = React.useState("");
@@ -46,8 +47,13 @@ const UserMenu = () => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>{userEmail || "My Account"}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {/* <DropdownMenuItem>Settings</DropdownMenuItem> */}
-        {/* <DropdownMenuSeparator /> */}
+        <Link href={"/"}>
+          <DropdownMenuItem>Dashboard</DropdownMenuItem>
+        </Link>
+        <Link href={"/history"}>
+          <DropdownMenuItem>History</DropdownMenuItem>
+        </Link>
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

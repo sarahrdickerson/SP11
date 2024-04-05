@@ -9,7 +9,10 @@ const Navbar = () => {
   const { user } = useAuth();
   return (
     <div className="container flex flex-row items-center  justify-between  py-4 sm:flex-row sm:space-y-0 md:h-16">
-      <h2 className="text-lg font-semibold">SP11 Music Generator App</h2>
+      <Link href="/">
+        {" "}
+        <h2 className="text-lg font-semibold">SP11 Music Generator App</h2>
+      </Link>
 
       {/* toggle between sign in button and sign out button based on user status */}
       {user ? (

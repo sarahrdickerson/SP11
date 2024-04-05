@@ -1,38 +1,38 @@
 export const musicModels = [
   {
-    id: "audiocraft",
-    name: "AudioCraft",
+    id: "musicgen",
+    name: "MusicGen",
     description:
-      "AudioCraft is a versatile and innovative tool for music generation, designed to interpret text-based inputs and translate them into high-fidelity audio. It excels in creating rich, immersive soundscapes and musical compositions.",
+      "Harnesses advanced deep learning to transform text prompts into rich musical compositions across diverse genres.",
     strengths:
-      "High-quality audio generation, text-to-music capabilities, and a broad range of soundscapes.",
+      "Excels in creating complex arrangements and can produce music in a wide array of styles, from classical to contemporary.",
     type: "Music Generation",
   },
   {
-    id: "dance-diffusion",
-    name: "Dance Diffusion",
+    id: "riffusion",
+    name: "Riffusion",
     description:
-      "Dance Diffusion, developed by Harmonai, takes a unique approach to music generation. It specializes in generating original and creative musical pieces, focusing on electronic and dance genres.",
+      "Specializes in generating rhythmic and melodic patterns to create catchy riffs and beats.",
     strengths:
-      "Creative composition in electronic and dance music, originality in generated tracks, and rapid generation of music samples.",
+      "Great for generating ear-catching riffs and beats, especially effective in rock and electronic genres.",
     type: "Music Generation",
   },
   {
-    id: "jukebox",
-    name: "JukeBox",
+    id: "audioldm",
+    name: "AudioLDM",
     description:
-      "JukeBox, created by OpenAI, is a state-of-the-art neural network for music generation. It's known for its ability to imitate various styles and artists, and can even generate music with lyrics.",
+      "AudioLDM stands at the cutting edge of audio generation, offering text-conditional capabilities for creating sound effects, human speech, and music. It is proficient in zero-shot text-guided audio style-transfer, enabling users to craft sounds and music that align with their textual descriptions.",
     strengths:
-      "Versatility in styles and genres, capability to generate music with lyrics, and imitation of artist styles.",
+      "Exceptional at text-to-audio transformations, versatile in sound effect synthesis, and adept at speech and music generation with impressive style-transfer qualities.",
     type: "Music Generation",
   },
   {
-    id: "musiclm",
-    name: "MusicLM",
+    id: "looptest",
+    name: "Looptest",
     description:
-      "MusicLM, from Google, stands out for its ability to generate high-quality music from text descriptions. The model leverages joint embeddings of music and corresponding text, making it adept at creating music that aligns closely with descriptive prompts.",
+      "Looptest is a focused audio model designed to craft seamless four-bar drum loops at a standard 120 bpm. It’s tailored for producers and musicians looking to inject new life into their rhythm sections with minimal fuss.",
     strengths:
-      "Accurate interpretation of text prompts, generation of cohesive music pieces, and high-quality audio output.",
+      "Specializes in creating tight, professional-sounding drum loops, perfect for building the rhythmic foundation of a track.",
     type: "Music Generation",
   },
 ];

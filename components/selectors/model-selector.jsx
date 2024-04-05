@@ -32,7 +32,14 @@ import { musicModels } from "@/data/models";
 
 const ModelSelector = ({ selectedModel, setSelectedModel }) => {
   const [open, setOpen] = React.useState(false);
-  const [peekedModel, setPeekedModel] = React.useState(musicModels[0]);
+  const [peekedModel, setPeekedModel] = React.useState(
+    selectedModel || musicModels[0]
+  );
+
+  const handleModelSelect = (model) => {
+    setSelectedModel(model);
+    setOpen(false);
+  };
 
   return (
     <div className="grid gap-2">
@@ -105,11 +112,8 @@ const ModelSelector = ({ selectedModel, setSelectedModel }) => {
                       key={model.id}
                       model={model}
                       isSelected={selectedModel?.id === model.id}
-                      onPeek={(model) => setPeekedModel(model)}
-                      onSelect={() => {
-                        setSelectedModel(model);
-                        setOpen(false);
-                      }}
+                      onPeek={setPeekedModel}
+                      onSelect={() => handleModelSelect(model)}
                     />
                   ))}
                 </CommandGroup>
@@ -139,7 +143,7 @@ function ModelItem({ model, isSelected, onSelect, onPeek }) {
     <CommandItem
       key={model.id}
       onSelect={onSelect}
-      ref={ref}
+      onMouseEnter={() => onPeek(model)} // Call onPeek when mouse enters the item
       className="aria-selected:bg-primary aria-selected:text-primary-foreground"
     >
       {model.name}

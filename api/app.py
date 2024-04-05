@@ -81,9 +81,9 @@ def generate():
 def generateFile3():
     data = request.get_json()
     result = requestsDb.db.requests.insert_one(data)
-    file_id = result.inserted_id
-    print(f"Result: {result} File ID: {file_id}")
-    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"requests": file_id}})
+    req_file_id = result.inserted_id
+    print(f"Result: {result} File ID: {req_file_id}")
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"requests": req_file_id}})
     
     incoming = request.get_json()['query']
     length = int(request.get_json()['length'])
@@ -122,6 +122,11 @@ def generateFile3():
 
     result = coll.insert_one({"file": output,"input": incoming, "file_id": str(wav_file_id), "name": "test"})
     file_id = result.inserted_id
+
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"wav_files": wav_file_id}})
+    # update the request in requestsDb to include the wav_file_id
+    requestsDb.db.requests.update_one({"_id": ObjectId(req_file_id)}, {"$set": {"wav_file_id": wav_file_id}})
+
 
     return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output), "wav_file_id": str(wav_file_id)})
 
@@ -214,5 +219,37 @@ def register():
     user_id = result.inserted_id
     return jsonify({"message": "User added successfully!", "user_id": str(user_id), "success": True})
 
+@app.route('/api/user_wav_history/<user_id>', methods=['GET'])
+def user_wav_history(user_id):
+    try:
+        # Check if user_id is 'null' or otherwise invalid
+        if user_id in ('null', 'undefined', ''):
+            return jsonify({"message": "Invalid user ID", "success": False}), 400
+        
+        user = users_coll.find_one({"_id": ObjectId(user_id)})
+        if user is None:
+            return jsonify({"message": "User not found", "success": False})
+        wav_file_array = [str(file_id) for file_id in user.get('wav_files', [])]
+        requests_array = [str(file_id) for file_id in user.get('requests', [])]
+        return jsonify({"message": "User found", "success": True, "wav_files": wav_file_array, "requests": requests_array})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/get_request/<request_id>', methods=['GET'])
+def get_request(request_id):
+    try:
+        request = requestsDb.db.requests.find_one({"_id": ObjectId(request_id)})
+        if request is None:
+            return jsonify({"message": "Request not found", "success": False}), 404
+        
+        # Convert all ObjectIds to strings
+        request['_id'] = str(request['_id'])
+        if 'wav_file_id' in request:
+            request['wav_file_id'] = str(request['wav_file_id'])
+
+        return jsonify({"message": "Request found", "success": True, "request": request})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 if __name__ == '__main__':
     app.run(debug=True)

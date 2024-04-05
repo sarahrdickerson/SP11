@@ -26,14 +26,10 @@ export default function Home() {
   const [currentFileId, setCurrentFileId] = useState(null);
 
   return (
-    // <AuthProvider>
     <FileIdContext.Provider value={{ currentFileId, setCurrentFileId }}>
-      <div className=" min-h-screen h-full w-screen flex-col md:flex bg-[#efefef]">
-        <Navbar />
-
+      <div className="flex-col md:flex ">
         <Dashboard />
       </div>
     </FileIdContext.Provider>
-    // </AuthProvider>
   );
 }

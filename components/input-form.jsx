@@ -113,6 +113,11 @@ const InputForm = ({ onGenerate }) => {
     tempo: 120, // Assuming the tempo is a number
   });
 
+  const modelApiMap = {
+    musicgen: "/api/generate/MusicGen",
+    riffusion: "/api/generate/Riffusion",
+  };
+
   const handleGenerate = () => {
     setIsLoading(true);
     // First validate the input
@@ -137,10 +142,16 @@ const InputForm = ({ onGenerate }) => {
     // setGenerating(true);
 
     console.log("request data: ", requestData);
+
+    // set api route based on selected model
+    const apiRoute = modelApiMap[selectedModel.id];
+
+    console.log("calling api route: ", apiRoute);
+
     // Make the POST request using Axios
     axiosInstance
       // .post("/api/generate_request", requestData)
-      .post("/api/generate/MusicGen", requestData, { timeout: 120000 })
+      .post(apiRoute, requestData, { timeout: 120000 })
       .then((response) => {
         console.log("Success:", response.data);
         console.log("Setting file ID to:", response.data.wav_file_id);
