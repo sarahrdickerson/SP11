@@ -18,7 +18,7 @@ export const musicModels = [
     type: "Music Generation",
   },
   {
-    id: "audioldm",
+    id: "audio_ldm",
     name: "AudioLDM",
     description:
       "AudioLDM stands at the cutting edge of audio generation, offering text-conditional capabilities for creating sound effects, human speech, and music. It is proficient in zero-shot text-guided audio style-transfer, enabling users to craft sounds and music that align with their textual descriptions.",

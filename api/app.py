@@ -77,13 +77,9 @@ def generate_request():
 def generate():
     return jsonify({"message": "Generating music"})
 
-@app.route('/api/generate/MusicGen', methods=['POST'])
+@app.route('/api/generate/musicgen', methods=['POST'])
 def generateFile3():
     data = request.get_json()
-    result = requestsDb.db.requests.insert_one(data)
-    req_file_id = result.inserted_id
-    print(f"Result: {result} File ID: {req_file_id}")
-    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"requests": req_file_id}})
     
     incoming = request.get_json()['query']
     length = int(request.get_json()['length'])
@@ -116,6 +112,11 @@ def generateFile3():
     if response.status_code != 200:
         abort(500, description="Failed to retrieve the WAV file")
 
+    result = requestsDb.db.requests.insert_one(data)
+    req_file_id = result.inserted_id
+    print(f"Added request to db: {result} File ID: {req_file_id}")
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"requests": req_file_id}})
+
     wav_content = response.content
 
     wav_file_id = fs.put(wav_content, filename="musicgen_out.wav")
@@ -131,8 +132,10 @@ def generateFile3():
     return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output), "wav_file_id": str(wav_file_id)})
 
 
-@app.route('/api/generate/Riffusion', methods=['POST'])
+@app.route('/api/generate/riffusion', methods=['POST'])
 def generateFile4():
+    data = request.get_json()
+
     incoming = request.get_json()['query']
    
     if len(incoming) == 0:
@@ -149,6 +152,11 @@ def generateFile4():
     response = requests.get(output)
     if response.status_code != 200:
         abort(500, description="failed to retrieve the WAV file")
+
+    result = requestsDb.db.requests.insert_one(data)
+    req_file_id = result.inserted_id
+    print(f"Added request to db: {result} File ID: {req_file_id}")
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"requests": req_file_id}})
     
     wav_content = response.content
 
@@ -157,15 +165,18 @@ def generateFile4():
     result = coll.insert_one({"file": output,"name": "test"})
     file_id = result.inserted_id
 
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"wav_files": wav_file_id}})
+    # update the request in requestsDb to include the wav_file_id
+    requestsDb.db.requests.update_one({"_id": ObjectId(req_file_id)}, {"$set": {"wav_file_id": wav_file_id}})
 
     return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicfile": str(output), "wav_file_id": str(wav_file_id)})
 
 @app.route('/api/generate/looptest', methods=['POST'])
 def generateFile5():
+    data = request.get_json()
    
-    
     input = {
-    "seed": "-1"
+    "seed": -1
     }
 
     output = replicate.run(
@@ -177,8 +188,16 @@ def generateFile5():
 
     response = requests.get(output)
     if response.status_code != 200:
+        # remove the request from requestsDb and user coll
+        requestsDb.db.requests.delete_one({"_id": ObjectId(req_file_id)})
+        users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$pull": {"requests": req_file_id}})
         abort(500, description="failed to retrieve the WAV file")
     
+    result = requestsDb.db.requests.insert_one(data)
+    req_file_id = result.inserted_id
+    print(f"Added request to db: {result} File ID: {req_file_id}")
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"requests": req_file_id}})
+
     wav_content = response.content
 
     wav_file_id = fs.put(wav_content, filename = "looptest_out.wav")
@@ -186,19 +205,19 @@ def generateFile5():
     result = coll.insert_one({"file": output,"name": "test"})
     file_id = result.inserted_id
 
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"wav_files": wav_file_id}})
+    # update the request in requestsDb to include the wav_file_id
+    requestsDb.db.requests.update_one({"_id": ObjectId(req_file_id)}, {"$set": {"wav_file_id": wav_file_id}})
 
     return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicfile": str(output), "wav_file_id": str(wav_file_id)})
 
-@app.route('/api/generate/audio-lm', methods=['POST'])
+@app.route('/api/generate/audio-ldm', methods=['POST'])
 def generateFile6():
     data = request.get_json()
-    result = requestsDb.db.requests.insert_one(data)
-    file_id = result.inserted_id
-    print(f"Result: {result} File ID: {file_id}")
-    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"requests": file_id}})
     
     incoming = request.get_json()['query']
-   
+    length = int(request.get_json()['length'])
+
     if len(incoming) == 0:
         abort(550)
 
@@ -218,6 +237,11 @@ def generateFile6():
     if response.status_code != 200:
         abort(500, description="Failed to retrieve the WAV file")
 
+    result = requestsDb.db.requests.insert_one(data)
+    req_file_id = result.inserted_id
+    print(f"Added request to db: {result} File ID: {req_file_id}")
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"requests": req_file_id}})
+
     wav_content = response.content
 
     wav_file_id = fs.put(wav_content, filename="audio-lm.wav")
@@ -225,6 +249,10 @@ def generateFile6():
     result = coll.insert_one({"file": output,"input": incoming, "file_id": str(wav_file_id), "name": "test"})
     file_id = result.inserted_id
 
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"wav_files": wav_file_id}})
+    # update the request in requestsDb to include the wav_file_id
+    requestsDb.db.requests.update_one({"_id": ObjectId(req_file_id)}, {"$set": {"wav_file_id": wav_file_id}})
+    
     return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output), "wav_file_id": str(wav_file_id)})
 
 
