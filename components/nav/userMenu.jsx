@@ -14,6 +14,24 @@ import { PersonIcon } from "@radix-ui/react-icons";
 import { useAuth } from "@/context/authContext";
 const UserMenu = () => {
   const { logout } = useAuth();
+  const [userEmail, setUserEmail] = React.useState("");
+
+  React.useEffect(() => {
+    // Ensure we're running this in the browser
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          // Assuming that the user object was stored as JSON
+          const user = JSON.parse(storedUser);
+          setUserEmail(user.email); // or however you have stored the email field
+        } catch (error) {
+          console.error("Failed to parse the user from localStorage:", error);
+        }
+      }
+    }
+  }, []);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -26,8 +44,8 @@ const UserMenu = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
-        {/* <DropdownMenuSeparator /> */}
+        <DropdownMenuLabel>{userEmail || "My Account"}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
         {/* <DropdownMenuItem>Settings</DropdownMenuItem> */}
         {/* <DropdownMenuSeparator /> */}
         <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>

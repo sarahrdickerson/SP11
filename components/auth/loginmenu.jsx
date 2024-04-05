@@ -79,9 +79,9 @@ export function LoginMenu() {
         <Button className="w-full" onClick={loginUser}>
           Login
         </Button>
-        <Link href="/forgot-password" className="text-sm text-blue-600">
+        {/* <Link href="/forgot-password" className="text-sm text-blue-600">
           Forgot your password?
-        </Link>
+        </Link> */}
         <div className="flex flex-row items-center justify-center space-x-1">
           <p className="text-sm">Don't have an account?</p>
           <Link href="/register" className="text-sm text-blue-600">

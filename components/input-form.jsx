@@ -55,8 +55,26 @@ const InputForm = ({ onGenerate }) => {
   const [selectedLength, setSelectedLength] = React.useState(null);
   const [generating, setGenerating] = React.useState(false);
   const [selectedExtras, setSelectedExtras] = React.useState([]);
+  const [userId, setUserId] = React.useState(null);
 
   const [isLoading, setIsLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    // Ensure we're running this in the browser
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          // Assuming that the user object was stored as JSON
+          const user = JSON.parse(storedUser);
+          setUserId(user.id); // or however you have stored the email field
+          console.log("User ID:", user.id);
+        } catch (error) {
+          console.error("Failed to parse the user from localStorage:", error);
+        }
+      }
+    }
+  }, []);
 
   // Add state for error handling
   const [errors, setErrors] = React.useState({
@@ -105,6 +123,7 @@ const InputForm = ({ onGenerate }) => {
     }
     // Prepare the data
     const requestData = {
+      user_id: userId,
       query: selectedInput,
       model: selectedModel.id,
       length: selectedLength,
