@@ -22,8 +22,19 @@ const Dashboard = () => {
 
   if (!user) {
     return (
-      <div className="flex flex-col gap-5 rounded-lg  p-10 h-screen">
-        <h1 className="font-semibold">Please sign in to use the app</h1>
+      <div className="flex flex-col items-center justify-center p-4 pt-60">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold mb-4">
+            Welcome to SP11 Music Generator
+          </h1>
+          <p className="mb-6">
+            Sign in to create and manage your generated music tracks.
+          </p>
+
+          <Link href="/signin">
+            <Button>Sign In</Button>
+          </Link>
+        </div>
       </div>
     );
   }
