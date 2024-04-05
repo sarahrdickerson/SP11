@@ -106,7 +106,7 @@ def generateFile3():
     print(f"Result: {result} File ID: {file_id}")
     
     incoming = request.get_json()['query']
-    length = request.get_json()['length']
+    length = int(request.get_json()['length'])
    
     if len(incoming) == 0:
         abort(505)
