@@ -139,13 +139,13 @@ const InputForm = ({ onGenerate }) => {
     console.log("request data: ", requestData);
     // Make the POST request using Axios
     axiosInstance
-      .post("/api/generate_request", requestData)
-      // .post("/api/generate/MusicGen", requestData, { timeout: 120000 })
+      // .post("/api/generate_request", requestData)
+      .post("/api/generate/MusicGen", requestData, { timeout: 120000 })
       .then((response) => {
         console.log("Success:", response.data);
-        console.log("Setting file ID to:", response.data.file_id);
-        setCurrentFileId(response.data.file_id);
-        console.log(response.data.file_id);
+        console.log("Setting file ID to:", response.data.wav_file_id);
+        setCurrentFileId(response.data.wav_file_id);
+        console.log(response.data.wav_file_id);
         // Handle the response here
         // setGenerating(false);
         setIsLoading(false);

@@ -26,6 +26,7 @@ import replicate
 
 from io import BytesIO
 import base64
+import requests
 from werkzeug.exceptions import BadRequest
 import werkzeug.exceptions
 # load_dotenv('.env.local')
@@ -40,6 +41,7 @@ requestsDb = PyMongo(
 client = MongoClient('mongodb+srv://sarahdickerson:' + mongo_password + '@cluster0.ltgtmlx.mongodb.net')
 db = client["Music"]
 fs = gridfs.GridFS(db)
+fs_coll = db["fs.files"]
 coll = db["music"]
 users = client["Users"]
 users_coll = users["users"]
@@ -110,11 +112,18 @@ def generateFile3():
     )
     print(output)
 
+    response = requests.get(output)
+    if response.status_code != 200:
+        abort(500, description="Failed to retrieve the WAV file")
 
-    result = coll.insert_one({"file": output,"input": incoming})
+    wav_content = response.content
+
+    wav_file_id = fs.put(wav_content, filename="musicgen_out.wav")
+
+    result = coll.insert_one({"file": output,"input": incoming, "file_id": str(wav_file_id), "name": "test"})
     file_id = result.inserted_id
 
-    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output)})
+    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output), "wav_file_id": str(wav_file_id)})
 
 
 @app.route('/api/generate/Riffusion', methods=['POST'])
@@ -162,14 +171,23 @@ def generateAudioGen():
 @app.route('/api/download/<file_id>', methods=['GET'])
 def download(file_id):
     try:
-        file_string = coll.find_one({"_id": ObjectId(file_id)}) # retrieve encoded file from mongo
-        binary_data = file_string['file'] # get the binary data string
-        buffer = BytesIO(binary_data) # create a buffer with the audio data
-        buffer.seek(0) # start reading buffer from beginning
-        return send_file(buffer, as_attachment=True, mimetype='audio/wav', download_name='musicgen_out.wav') # send buffer as wav file
+        # Retrieve the GridFS file entry
+        grid_out = fs.get(ObjectId(file_id))
+        # Create a BytesIO buffer with the file's data
+        buffer = BytesIO(grid_out.read())
+        buffer.seek(0)  # Move to the start of the buffer
+        return send_file(
+            buffer,
+            as_attachment=True,
+            mimetype='audio/wav',
+            download_name=grid_out.filename
+        )
+    except gridfs.NoFile:
+        # If there's no file with the given ID in GridFS
+        return jsonify({"message": "File not found", "error": "File not found"}), 404
     except Exception as e:
-        print (e)   
-        return jsonify({"message": "File not found", "error": str(e)})
+        print(e)
+        return jsonify({"message": "An error occurred", "error": str(e)}), 500
     
 @app.route('/api/auth/login', methods=['POST'])
 def login():
