@@ -81,6 +81,7 @@ def generateFile3():
     result = requestsDb.db.requests.insert_one(data)
     file_id = result.inserted_id
     print(f"Result: {result} File ID: {file_id}")
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"requests": file_id}})
     
     incoming = request.get_json()['query']
     length = int(request.get_json()['length'])
