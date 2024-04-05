@@ -134,13 +134,10 @@ def generateFile3():
 @app.route('/api/generate/Riffusion', methods=['POST'])
 def generateFile4():
     incoming = request.get_json()['query']
-    length = request.get_json()['length']
    
     if len(incoming) == 0:
         abort(505)
 
-    if type(length) != int or length == 0:
-        abort(506)
     input = {"prompt_b": "90's rap"}
 
     output = replicate.run(
@@ -149,13 +146,87 @@ def generateFile4():
     ) 
     print(output)
 
+    response = requests.get(output)
+    if response.status_code != 200:
+        abort(500, description="failed to retrieve the WAV file")
+    
+    wav_content = response.content
+
+    wav_file_id = fs.put(wav_content, filename = "riffusion_out.wav")
 
     result = coll.insert_one({"file": output,"name": "test"})
     file_id = result.inserted_id
 
 
+    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicfile": str(output), "wav_file_id": str(wav_file_id)})
+
+@app.route('/api/generate/looptest', methods=['POST'])
+def generateFile5():
+   
+    
+    input = {
+    "seed": "-1"
+    }
+
+    output = replicate.run(
+        "allenhung1025/looptest:0de4a5f14b9120ce02c590eb9cf6c94841569fafbc4be7ab37436ce738bcf49f",
+        input=input
+    )
+    print(output)
+
+
+    response = requests.get(output)
+    if response.status_code != 200:
+        abort(500, description="failed to retrieve the WAV file")
+    
+    wav_content = response.content
+
+    wav_file_id = fs.put(wav_content, filename = "looptest_out.wav")
+
+    result = coll.insert_one({"file": output,"name": "test"})
+    file_id = result.inserted_id
+
+
+    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicfile": str(output), "wav_file_id": str(wav_file_id)})
+
+@app.route('/api/generate/audio-lm', methods=['POST'])
+def generateFile6():
+    data = request.get_json()
+    result = requestsDb.db.requests.insert_one(data)
+    file_id = result.inserted_id
     print(f"Result: {result} File ID: {file_id}")
-    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicfile": str(output)})
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"requests": file_id}})
+    
+    incoming = request.get_json()['query']
+   
+    if len(incoming) == 0:
+        abort(550)
+
+    if type(length) != int or length == 0:
+        abort(551)
+
+
+    input = {
+    "text": incoming    }
+
+    output = replicate.run(
+        "haoheliu/audio-ldm:b61392adecdd660326fc9cfc5398182437dbe5e97b5decfb36e1a36de68b5b95",
+        input=input
+    )
+
+    response = requests.get(output)
+    if response.status_code != 200:
+        abort(500, description="Failed to retrieve the WAV file")
+
+    wav_content = response.content
+
+    wav_file_id = fs.put(wav_content, filename="audio-lm.wav")
+
+    result = coll.insert_one({"file": output,"input": incoming, "file_id": str(wav_file_id), "name": "test"})
+    file_id = result.inserted_id
+
+    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output), "wav_file_id": str(wav_file_id)})
+
 
 
 @app.route('/api/generate/AudioGen', methods=['GET', 'POST'])
