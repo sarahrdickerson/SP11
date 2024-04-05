@@ -8,12 +8,11 @@ import UserMenu from "./userMenu";
 const Navbar = () => {
   const { user } = useAuth();
   return (
-    <div className="container flex flex-col items-start justify-between space-y-2 py-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
+    <div className="container flex flex-row items-center  justify-between  py-4 sm:flex-row sm:space-y-0 md:h-16">
       <h2 className="text-lg font-semibold">SP11 Music Generator App</h2>
 
       {/* toggle between sign in button and sign out button based on user status */}
       {user ? (
-        // <Button variant="outline">Sign Out</Button>
         <UserMenu />
       ) : (
         <Link href="/signin">

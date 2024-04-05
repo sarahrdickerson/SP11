@@ -5,7 +5,7 @@ import WaveSurfer from "wavesurfer.js";
 const initialOptions = {
   container: "#waveform",
   height: 128,
-  width: 600,
+  //   width: 600,
   waveColor: "#10172a",
   progressColor: "#a2a2a2",
   cursorColor: "#9FB3B7",
@@ -13,6 +13,23 @@ const initialOptions = {
   mediaControls: true,
   // Add other initial options here
   url: "/audio.wav",
+};
+
+const containerStyles = {
+  width: "100%", // Take the full width of the parent
+  maxWidth: "600px", // Optional: if you want to limit the size
+  margin: "0 auto", // Center it if needed
+};
+
+const overlayStyles = {
+  position: "absolute",
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+  cursor: "not-allowed",
+  background: "rgba(255, 255, 255, 0.5)", // Semi-transparent overlay
+  zIndex: 10,
 };
 
 const AudioWave = ({ isInteractive }) => {
@@ -42,21 +59,9 @@ const AudioWave = ({ isInteractive }) => {
   }, [options, wavesurfer]);
 
   return (
-    <div className="waveform-container" style={{ position: "relative" }}>
+    <div className="waveform-container" style={containerStyles}>
       <div id="waveform" ref={waveformRef} />
-      {!isInteractive && (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            cursor: "not-allowed",
-            zIndex: 10, // Make sure this is above the waveform's z-index
-          }}
-        />
-      )}
+      {!isInteractive && <div style={overlayStyles} />}
     </div>
   );
 };
