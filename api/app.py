@@ -75,30 +75,6 @@ def generate_request():
 def generate():
     return jsonify({"message": "Generating music"})
 
-
-# @app.route('/api/generate/MusicGen', methods=['POST'])
-# def generateFile2():
-#     incoming = request.get_json()['query']
-#     length = request.get_json()['length']
-#     processor = AutoProcessor.from_pretrained("facebook/musicgen-large")
-#     model = MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-large")
-#
-#     inputs = processor(
-#         text=[incoming],
-#         padding=True,
-#         return_tensors="pt",
-#     )
-#
-#     audio_values = model.generate(**inputs, max_new_tokens=256)
-#     sampling_rate = model.config.audio_encoder.sampling_rate
-#     scipy.io.wavfile.write("musicgen_out.wav", rate=sampling_rate, data=audio_values[0, 0].numpy())
-#
-#     # fs.put(open('musicgen_out.wav','rb'))
-#     result = coll.insert_one({"file": open('musicgen_out.wav', 'rb').read(),"name": "test"})
-#     file_id = result.inserted_id
-#
-#     return jsonify({"message": "Generate Successful", "file_id": str(file_id)})
-#
 @app.route('/api/generate/MusicGen', methods=['POST'])
 def generateFile3():
     data = request.get_json()
@@ -110,10 +86,10 @@ def generateFile3():
     length = int(request.get_json()['length'])
    
     if len(incoming) == 0:
-        abort(505)
+        abort(550)
 
     if type(length) != int or length == 0:
-        abort(506)
+        abort(551)
     output = replicate.run(
     "meta/musicgen:671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb",
     input={
@@ -134,7 +110,7 @@ def generateFile3():
     print(output)
 
 
-    result = coll.insert_one({"file": output,"name": "test"})
+    result = coll.insert_one({"file": output,"input": incoming})
     file_id = result.inserted_id
 
     return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output)})
