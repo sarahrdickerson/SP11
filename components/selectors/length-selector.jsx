@@ -34,6 +34,7 @@ const LengthSelector = ({ selectedLength, setSelectedLength }) => {
       <Input
         placeholder="Length (s)"
         onChange={(e) => setSelectedLength(e.target.value)}
+        className="bg-[#efefef] border-none"
       />
     </div>
   );
