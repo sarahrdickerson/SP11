@@ -14,6 +14,9 @@ import AudioWave from "./playback/audio-wave";
 
 const GeneratedMusicBox = ({ isInteractive }) => {
   const { currentFileId } = React.useContext(FileIdContext);
+  const dynamicUrl = isInteractive
+    ? `/api/download/${currentFileId}`
+    : "/audio.wav";
 
   React.useEffect(() => {
     console.log("Current File ID updated:", currentFileId);
@@ -92,7 +95,7 @@ const GeneratedMusicBox = ({ isInteractive }) => {
         </DropdownMenu>
       </div>
       <div className="flex flex-col items-center">
-        <AudioWave isInteractive={isInteractive} />
+        <AudioWave isInteractive={isInteractive} url={dynamicUrl} />
         {/* <Image src="/soundwave.png" width={600} height={500} /> */}
         <div className="flex flex-row gap-5 items-center">
           {/* <Button>Play</Button>  */}
