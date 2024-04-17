@@ -54,7 +54,9 @@ const UserMenu = () => {
           <DropdownMenuItem>History</DropdownMenuItem>
         </Link>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+        <Link href="/">
+          <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+        </Link>
       </DropdownMenuContent>
     </DropdownMenu>
   );

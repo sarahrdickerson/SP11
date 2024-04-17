@@ -1,7 +1,7 @@
 "use client";
 import axiosInstance from "@/api/axiosConfig";
 import { createContext, useContext, useState, useEffect } from "react";
-// import { useRouter } from "next/router"rem;
+// import { useRouter } from "next/router";
 
 const AuthContext = createContext(null);
 
