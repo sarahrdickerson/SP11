@@ -91,4 +91,5 @@ soundfile==0.12.1
 soxr==0.3.7 
 threadpoolctl==3.4.0 
 urllib3==2.2.1 
+python_utils==3.8.2
 zipp==3.18.1

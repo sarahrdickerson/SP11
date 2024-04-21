@@ -16,6 +16,7 @@ from flask_cors import CORS
 from bson import ObjectId
 from pydub import AudioSegment
 import requests
+import tempfile
 
 from transformers import pipeline, AutoProcessor, MusicgenForConditionalGeneration
 import scipy
@@ -32,6 +33,8 @@ import base64
 import requests
 from werkzeug.exceptions import BadRequest
 import werkzeug.exceptions
+
+from chordmodel.test import run_chord_model
 # load_dotenv('.env.local')
 # mongo_password = os.getenv('MONGO_PASSWORD')
 mongo_password = 'xzk6BaBfEVE5hP0V'
@@ -132,17 +135,26 @@ def generateFile3():
     mp3_content.seek(0)  # Rewind the buffer to the beginning
     mp3_file_id = fs.put(mp3_content, filename="musicgen_out.mp3")
 
+    # running chord model on mp3 file
+    print("Running chord model on mp3 file")
+    chord_res = chordmodel(mp3_file_id)
+    
+    if chord_res.status_code == 200:
+        chord_file_id = chord_res.json.get("lab_file_id")
+    else:
+        return jsonify({"message": "An error occurred", "error": "Failed to process chord model"})
+
     # music database
-    result = coll.insert_one({"file": output,"input": incoming, "file_id": str(wav_file_id), "mp3_file_id": str(mp3_file_id), "name": "test"})
+    result = coll.insert_one({"file": output,"input": incoming, "file_id": str(wav_file_id), "mp3_file_id": str(mp3_file_id), "name": "test", "chord_file_id": str(chord_file_id)})
     file_id = result.inserted_id
 
     # update user database
-    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"wav_files": wav_file_id, "mp3_files": mp3_file_id}})
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"wav_files": wav_file_id, "mp3_files": mp3_file_id, "chord_files": chord_file_id}})
 
     # update the request in requestsDb to include the wav_file_id
-    requestsDb.db.requests.update_one({"_id": ObjectId(req_file_id)}, {"$set": {"wav_file_id": wav_file_id, "mp3_file_id": mp3_file_id}})
+    requestsDb.db.requests.update_one({"_id": ObjectId(req_file_id)}, {"$set": {"wav_file_id": wav_file_id, "mp3_file_id": mp3_file_id, "chord_file_id": chord_file_id}})
 
-    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output), "wav_file_id": str(wav_file_id), "mp3_file_id": str(mp3_file_id)})
+    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output), "wav_file_id": str(wav_file_id), "mp3_file_id": str(mp3_file_id), "chord_file_id": str(chord_file_id)})
 
 
 @app.route('/api/generate/riffusion', methods=['POST'])
@@ -311,6 +323,77 @@ def download(type, file_id):
         print(e)
         return jsonify({"message": "An error occurred", "error": str(e)}), 500
     
+@app.route('/api/chordmodel/<file_id>', methods=['GET'])
+def chordmodel(file_id):
+    try:
+        print("File ID: ", file_id)
+        # Download the file from MongoDB
+        grid_out = fs.get(ObjectId(file_id))
+        filename = grid_out.filename
+
+        print("File name: ", filename)
+
+        # Determine the full path for the temporary file in the same directory as app.py
+        # temp_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
+        temp_file_path =  os.path.join('chordmodel', 'test', 'audio.mp3')
+        
+        # Write the contents to the temporary file
+        with open(temp_file_path, 'wb') as temp_file:
+            temp_file.write(grid_out.read())
+
+        print(f"Temp file path: {temp_file_path}")
+
+        # Now you have the file locally and can process it
+        print("APP PY running chord model")
+        run_chord_model()
+        print("APP PY finished running chord model")
+
+        # Remove the temporary file after processing
+        os.remove(temp_file_path)
+
+        if not os.path.exists('chordmodel/test/audio.midi'):
+            return jsonify({"message": "An error occurred", "error": "MIDI file not found"}), 500
+        os.remove('chordmodel/test/audio.midi')
+
+        if not os.path.exists('chordmodel/test/audio.lab'):
+            return jsonify({"message": "An error occurred", "error": "Label file not found"}), 500
+        
+        # process the lab file and upload it to mongo database
+        with open('chordmodel/test/audio.lab', 'rb') as f:
+            lab_file_id = fs.put(f, filename="audio.lab")
+
+        # remove lab file after processing
+        os.remove('chordmodel/test/audio.lab')
+        return jsonify({"message": "Chord model processing successful", "lab_file_id": str(lab_file_id)})
+    except gridfs.NoFile:
+        return jsonify({"message": "File not found", "error": "File not found"}), 404
+    except Exception as e:
+        return jsonify({"message": "An error occurred", "error": str(e)}), 500
+
+@app.route('/api/download_chord/<file_id>', methods=['GET'])
+def download_chord(file_id):
+    try:
+        # Retrieve the GridFS file entry
+        grid_out = fs.get(ObjectId(file_id))
+
+        # Set the MIME type based on the file type requested
+        mime_type = 'text/plain'
+
+        # Create a BytesIO buffer with the file's data
+        buffer = BytesIO(grid_out.read())
+        buffer.seek(0)  # Move to the start of the buffer
+        return send_file(
+            buffer,
+            as_attachment=True,
+            mimetype=mime_type,
+            download_name=grid_out.filename
+        )
+    except gridfs.NoFile:
+        # If there's no file with the given ID in GridFS
+        return jsonify({"message": "File not found", "error": "File not found"}), 404
+    except Exception as e:
+        return jsonify({"message": "An error occurred", "error": str(e)}), 500
+
 @app.route('/api/auth/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -343,6 +426,8 @@ def user_wav_history(user_id):
         if user_id in ('null', 'undefined', ''):
             return jsonify({"message": "Invalid user ID", "success": False}), 400
         
+        print("User ID: ", user_id)
+        
         user = users_coll.find_one({"_id": ObjectId(user_id)})
         if user is None:
             return jsonify({"message": "User not found", "success": False})
@@ -360,9 +445,14 @@ def get_request(request_id):
             return jsonify({"message": "Request not found", "success": False}), 404
         
         # Convert all ObjectIds to strings
+        # Convert all ObjectIds to strings
         request['_id'] = str(request['_id'])
         if 'wav_file_id' in request:
             request['wav_file_id'] = str(request['wav_file_id'])
+        if 'mp3_file_id' in request:
+            request['mp3_file_id'] = str(request['mp3_file_id'])
+        if 'chord_file_id' in request:
+            request['chord_file_id'] = str(request['chord_file_id'])
 
         return jsonify({"message": "Request found", "success": True, "request": request})
     except Exception as e:

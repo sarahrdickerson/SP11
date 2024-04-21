@@ -5,4 +5,6 @@ export const FileIdContext = React.createContext({
   setCurrentFileId: () => {},
   currentMp3FileId: null,
   setCurrentMp3FileId: () => {},
+  currentChordId: null,
+  setCurrentChordId: () => {},
 });

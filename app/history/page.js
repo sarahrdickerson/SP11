@@ -24,7 +24,7 @@ const HistoryPage = () => {
   }, []);
 
   return (
-    <div className="pl-20 pr-20 pt-5">
+    <div className="pl-2 pr-2 pt-5 md:pl-20 md:pr-20">
       <HistoryForm userId={userId} />
     </div>
   );

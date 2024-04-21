@@ -12,6 +12,7 @@ import LengthSelector from "@/components/selectors/length-selector";
 import { musicModels } from "@/data/models";
 import axiosInstance from "@/api/axiosConfig";
 import { FileIdContext } from "@/context/fileIdContext";
+// import { FileIdContext } from "@/context/fileIdContext";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -99,6 +100,7 @@ const InputForm = ({ onGenerate }) => {
 
   const { setCurrentFileId } = useContext(FileIdContext); // set file ID in context
   const { setCurrentMp3FileId } = useContext(FileIdContext); // set mp3 file ID in context
+  const { setCurrentChordId } = useContext(FileIdContext); // set chord ID in context
 
   const extrasComponents = {
     Genre: GenreSelector,
@@ -158,10 +160,14 @@ const InputForm = ({ onGenerate }) => {
       .then((response) => {
         console.log("Success:", response.data);
         console.log("Setting file ID to:", response.data.wav_file_id);
+        console.log("Setting mp3 file ID to:", response.data.mp3_file_id);
+        console.log("Setting chord file ID to:", response.data.chord_file_id);
         setCurrentFileId(response.data.wav_file_id);
         setCurrentMp3FileId(response.data.mp3_file_id);
+        setCurrentChordId(response.data.chord_file_id);
         console.log(response.data.mp3_file_id);
         console.log(response.data.wav_file_id);
+        console.log(response.data.chord_file_id);
         // Handle the response here
         // setGenerating(false);
         setIsLoading(false);

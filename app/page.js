@@ -25,6 +25,7 @@ import Navbar from "@/components/nav/navbar";
 export default function Home() {
   const [currentFileId, setCurrentFileId] = useState(null);
   const [currentMp3FileId, setCurrentMp3FileId] = useState(null);
+  const [currentChordId, setCurrentChordId] = useState(null);
 
   return (
     <FileIdContext.Provider
@@ -33,6 +34,8 @@ export default function Home() {
         setCurrentFileId,
         currentMp3FileId,
         setCurrentMp3FileId,
+        currentChordId,
+        setCurrentChordId,
       }}
     >
       <div className="flex-col md:flex ">
