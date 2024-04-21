@@ -14,17 +14,26 @@ import AudioWave from "./playback/audio-wave";
 
 const GeneratedMusicBox = ({ isInteractive }) => {
   const { currentFileId } = React.useContext(FileIdContext);
+  const { currentMp3FileId } = React.useContext(FileIdContext);
   const dynamicUrl = isInteractive
     ? `/api/download/wav/${currentFileId}`
     : "/audio.wav";
 
+  const [fileId, setFileId] = React.useState(null);
   React.useEffect(() => {
     console.log("Current File ID updated:", currentFileId);
-  }, [currentFileId]);
+    console.log("Current MP3 File ID updated:", currentMp3FileId);
+  }, [currentFileId, currentMp3FileId]);
 
-  const handleWavDownload = async () => {
-    console.log("Download Wav");
+  const handleFileDownload = async (fileType) => {
+    console.log("Download " + fileType + " clicked");
     console.log(currentFileId);
+    const fileIdToUse = fileType === "wav" ? currentFileId : currentMp3FileId;
+
+    if (!fileIdToUse) {
+      console.log("No file ID");
+      return;
+    }
 
     // if (!currentFileId) {
     //   console.log("No file ID");
@@ -32,7 +41,7 @@ const GeneratedMusicBox = ({ isInteractive }) => {
     // }
 
     try {
-      const res = await fetch(`/api/download/wav/${currentFileId}`);
+      const res = await fetch(`/api/download/${fileType}/${fileIdToUse}`);
       console.log(currentFileId);
       // const res = await fetch(`/api/download/${"65e55397c66cc84d45576e6c"}`);
       // const res = await fetch(`/api/download/${"65e5fd8d478be54296f5a478"}`);
@@ -45,7 +54,7 @@ const GeneratedMusicBox = ({ isInteractive }) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "generated_music.wav";
+        a.download = `generated_music.${fileType}`;
         document.body.appendChild(a); // Append the anchor to the body
         a.click();
         document.body.removeChild(a); // Clean up by removing the anchor
@@ -88,8 +97,11 @@ const GeneratedMusicBox = ({ isInteractive }) => {
           </DropdownMenuTrigger>
           <DropdownMenuContent sideOffset={5} align="end">
             {/* <DropdownMenuItem>Download MIDI</DropdownMenuItem> */}
-            <DropdownMenuItem onClick={handleWavDownload}>
+            <DropdownMenuItem onClick={() => handleFileDownload("wav")}>
               Download wav
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleFileDownload("mp3")}>
+              Download mp3
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

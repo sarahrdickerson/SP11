@@ -160,6 +160,7 @@ const InputForm = ({ onGenerate }) => {
         console.log("Setting file ID to:", response.data.wav_file_id);
         setCurrentFileId(response.data.wav_file_id);
         setCurrentMp3FileId(response.data.mp3_file_id);
+        console.log(response.data.mp3_file_id);
         console.log(response.data.wav_file_id);
         // Handle the response here
         // setGenerating(false);
