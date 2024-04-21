@@ -15,7 +15,7 @@ import AudioWave from "./playback/audio-wave";
 const GeneratedMusicBox = ({ isInteractive }) => {
   const { currentFileId } = React.useContext(FileIdContext);
   const dynamicUrl = isInteractive
-    ? `/api/download/${currentFileId}`
+    ? `/api/download/wav/${currentFileId}`
     : "/audio.wav";
 
   React.useEffect(() => {
@@ -32,7 +32,7 @@ const GeneratedMusicBox = ({ isInteractive }) => {
     // }
 
     try {
-      const res = await fetch(`/api/download/${currentFileId}`);
+      const res = await fetch(`/api/download/wav/${currentFileId}`);
       console.log(currentFileId);
       // const res = await fetch(`/api/download/${"65e55397c66cc84d45576e6c"}`);
       // const res = await fetch(`/api/download/${"65e5fd8d478be54296f5a478"}`);

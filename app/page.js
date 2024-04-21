@@ -24,9 +24,17 @@ import Dashboard from "./dashboard/page";
 import Navbar from "@/components/nav/navbar";
 export default function Home() {
   const [currentFileId, setCurrentFileId] = useState(null);
+  const [currentMp3FileId, setCurrentMp3FileId] = useState(null);
 
   return (
-    <FileIdContext.Provider value={{ currentFileId, setCurrentFileId }}>
+    <FileIdContext.Provider
+      value={{
+        currentFileId,
+        setCurrentFileId,
+        currentMp3FileId,
+        setCurrentMp3FileId,
+      }}
+    >
       <div className="flex-col md:flex ">
         <Dashboard />
       </div>

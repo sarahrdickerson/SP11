@@ -14,16 +14,19 @@ import os
 # from dotenv import load_dotenv
 from flask_cors import CORS
 from bson import ObjectId
+from pydub import AudioSegment
+import requests
 
 from transformers import pipeline, AutoProcessor, MusicgenForConditionalGeneration
 import scipy
-from scipy import io
+# from scipy import io
 from scipy.io import wavfile
 
 import gridfs
 from diffusers import DiffusionPipeline
 import replicate
 
+import io
 from io import BytesIO
 import base64
 import requests
@@ -80,15 +83,16 @@ def generate():
 @app.route('/api/generate/musicgen', methods=['POST'])
 def generateFile3():
     data = request.get_json()
-    
+
     incoming = request.get_json()['query']
     length = int(request.get_json()['length'])
    
     if len(incoming) == 0:
-        abort(550)
+        abort(550, "Empty query")
 
     if type(length) != int or length == 0:
-        abort(551)
+        abort(551, "Invalid length")
+        
     output = replicate.run(
     "meta/musicgen:671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb",
     input={
@@ -117,19 +121,28 @@ def generateFile3():
     print(f"Added request to db: {result} File ID: {req_file_id}")
     users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"requests": req_file_id}})
 
+    # Put WAV content in database
     wav_content = response.content
-
     wav_file_id = fs.put(wav_content, filename="musicgen_out.wav")
 
-    result = coll.insert_one({"file": output,"input": incoming, "file_id": str(wav_file_id), "name": "test"})
+    # Convert WAV to MP3 and put in database
+    audio_segment = AudioSegment.from_file(io.BytesIO(wav_content), format="wav")
+    mp3_content = io.BytesIO()
+    audio_segment.export(mp3_content, format="mp3")
+    mp3_content.seek(0)  # Rewind the buffer to the beginning
+    mp3_file_id = fs.put(mp3_content, filename="musicgen_out.mp3")
+
+    # music database
+    result = coll.insert_one({"file": output,"input": incoming, "file_id": str(wav_file_id), "mp3_file_id": str(mp3_file_id), "name": "test"})
     file_id = result.inserted_id
 
-    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"wav_files": wav_file_id}})
+    # update user database
+    users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"wav_files": wav_file_id, "mp3_files": mp3_file_id}})
+
     # update the request in requestsDb to include the wav_file_id
-    requestsDb.db.requests.update_one({"_id": ObjectId(req_file_id)}, {"$set": {"wav_file_id": wav_file_id}})
+    requestsDb.db.requests.update_one({"_id": ObjectId(req_file_id)}, {"$set": {"wav_file_id": wav_file_id, "mp3_file_id": mp3_file_id}})
 
-
-    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output), "wav_file_id": str(wav_file_id)})
+    return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output), "wav_file_id": str(wav_file_id), "mp3_file_id": str(mp3_file_id)})
 
 
 @app.route('/api/generate/riffusion', methods=['POST'])
@@ -272,18 +285,23 @@ def generateAudioGen():
 
     return jsonify({"message": "Generate Successful"})
 
-@app.route('/api/download/<file_id>', methods=['GET'])
-def download(file_id):
+@app.route('/api/download/<type>/<file_id>', methods=['GET'])
+def download(type, file_id):
     try:
         # Retrieve the GridFS file entry
         grid_out = fs.get(ObjectId(file_id))
+
+        # Set the MIME type based on the file type requested
+        mime_type = 'audio/mpeg' if type == 'mp3' else 'audio/wav'
+        print(mime_type)
+
         # Create a BytesIO buffer with the file's data
         buffer = BytesIO(grid_out.read())
         buffer.seek(0)  # Move to the start of the buffer
         return send_file(
             buffer,
             as_attachment=True,
-            mimetype='audio/wav',
+            mimetype=mime_type,
             download_name=grid_out.filename
         )
     except gridfs.NoFile:

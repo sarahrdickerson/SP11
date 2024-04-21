@@ -98,6 +98,7 @@ const InputForm = ({ onGenerate }) => {
   };
 
   const { setCurrentFileId } = useContext(FileIdContext); // set file ID in context
+  const { setCurrentMp3FileId } = useContext(FileIdContext); // set mp3 file ID in context
 
   const extrasComponents = {
     Genre: GenreSelector,
@@ -158,6 +159,7 @@ const InputForm = ({ onGenerate }) => {
         console.log("Success:", response.data);
         console.log("Setting file ID to:", response.data.wav_file_id);
         setCurrentFileId(response.data.wav_file_id);
+        setCurrentMp3FileId(response.data.mp3_file_id);
         console.log(response.data.wav_file_id);
         // Handle the response here
         // setGenerating(false);
