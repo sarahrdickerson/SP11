@@ -83,7 +83,7 @@ export function LoginMenu() {
           Forgot your password?
         </Link> */}
         <div className="flex flex-row items-center justify-center space-x-1">
-          <p className="text-sm">Don't have an account?</p>
+          <p className="text-sm">Don&apos;t have an account?</p>
           <Link href="/register" className="text-sm text-blue-600">
             Sign Up Here
           </Link>

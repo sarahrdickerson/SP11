@@ -7,7 +7,7 @@
     "next-dev": "next dev",
     "dev": "concurrently \"pnpm run next-dev\" \"pnpm run flask-dev\"",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --keepAliveTimeout 480000",
     "lint": "next lint"
   },
   "dependencies": {

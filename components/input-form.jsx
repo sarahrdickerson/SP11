@@ -156,7 +156,7 @@ const InputForm = ({ onGenerate }) => {
     // Make the POST request using Axios
     axiosInstance
       // .post("/api/generate_request", requestData)
-      .post(apiRoute, requestData, { timeout: 240000 })
+      .post(apiRoute, requestData, { timeout: 480000 })
       .then((response) => {
         console.log("Success:", response.data);
         console.log("Setting file ID to:", response.data.wav_file_id);
