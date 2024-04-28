@@ -141,18 +141,25 @@ def generateFile3():
     
     if chord_res['status'] == "success":
         chord_file_id = chord_res['lab_file_id']
+        print("Chord model processing successful file id: " + str(chord_file_id))
     else:
+        print("Chord model processing failed, returning error")
         return jsonify({"message": "An error occurred", "error": "Failed to process chord model"})
 
     # music database
     result = coll.insert_one({"file": output,"input": incoming, "file_id": str(wav_file_id), "mp3_file_id": str(mp3_file_id), "name": "test", "chord_file_id": str(chord_file_id)})
     file_id = result.inserted_id
+    print(f"Added music to db: {result} File ID: {file_id}")
 
     # update user database
     users_coll.update_one({"_id": ObjectId(data['user_id'])}, {"$push": {"wav_files": wav_file_id, "mp3_files": mp3_file_id, "chord_files": chord_file_id}})
+    print(f'User {data["user_id"]} updated with wav_file_id: {wav_file_id}, mp3_file_id: {mp3_file_id}, chord_file_id: {chord_file_id}')
 
     # update the request in requestsDb to include the wav_file_id
     requestsDb.db.requests.update_one({"_id": ObjectId(req_file_id)}, {"$set": {"wav_file_id": wav_file_id, "mp3_file_id": mp3_file_id, "chord_file_id": chord_file_id}})
+    print(f'Request {req_file_id} updated with wav_file_id: {wav_file_id}, mp3_file_id: {mp3_file_id}, chord_file_id: {chord_file_id}')
+
+    print("Generate Successful")
 
     return jsonify({"message": "Generate Successful", "file_id": str(file_id), "musicFile": str(output), "wav_file_id": str(wav_file_id), "mp3_file_id": str(mp3_file_id), "chord_file_id": str(chord_file_id)})
 
@@ -361,6 +368,8 @@ def chordmodel(file_id):
         # process the lab file and upload it to mongo database
         with open('chordmodel/test/audio.lab', 'rb') as f:
             lab_file_id = fs.put(f, filename="audio.lab")
+
+        print("Added Lab file ID to MongoDB Database: ", lab_file_id)
 
         # remove lab file after processing
         os.remove('chordmodel/test/audio.lab')
