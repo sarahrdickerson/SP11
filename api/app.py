@@ -139,8 +139,8 @@ def generateFile3():
     print("Running chord model on mp3 file")
     chord_res = chordmodel(mp3_file_id)
     
-    if chord_res.status_code == 200:
-        chord_file_id = chord_res.json.get("lab_file_id")
+    if chord_res['status'] == "success":
+        chord_file_id = chord_res['lab_file_id']
     else:
         return jsonify({"message": "An error occurred", "error": "Failed to process chord model"})
 
@@ -323,7 +323,7 @@ def download(type, file_id):
         print(e)
         return jsonify({"message": "An error occurred", "error": str(e)}), 500
     
-@app.route('/api/chordmodel/<file_id>', methods=['GET'])
+# @app.route('/api/chordmodel/<file_id>', methods=['GET'])
 def chordmodel(file_id):
     try:
         print("File ID: ", file_id)
@@ -352,11 +352,11 @@ def chordmodel(file_id):
         os.remove(temp_file_path)
 
         if not os.path.exists('chordmodel/test/audio.midi'):
-            return jsonify({"message": "An error occurred", "error": "MIDI file not found"}), 500
+            return {"message": "An error occurred", "error": "MIDI file not found", "status": "failure"}
         os.remove('chordmodel/test/audio.midi')
 
         if not os.path.exists('chordmodel/test/audio.lab'):
-            return jsonify({"message": "An error occurred", "error": "Label file not found"}), 500
+            return {"message": "An error occurred", "error": "Label file not found", "status": "failure"}
         
         # process the lab file and upload it to mongo database
         with open('chordmodel/test/audio.lab', 'rb') as f:
@@ -364,11 +364,11 @@ def chordmodel(file_id):
 
         # remove lab file after processing
         os.remove('chordmodel/test/audio.lab')
-        return jsonify({"message": "Chord model processing successful", "lab_file_id": str(lab_file_id)})
+        return {"message": "Chord model processing successful", "lab_file_id": str(lab_file_id), "status": "success"}
     except gridfs.NoFile:
-        return jsonify({"message": "File not found", "error": "File not found"}), 404
+        return {"message": "File not found", "error": "File not found", "status": "failure"}
     except Exception as e:
-        return jsonify({"message": "An error occurred", "error": str(e)}), 500
+        return {"message": "An error occurred", "error": str(e), "status": "failure"}
 
 @app.route('/api/download_chord/<file_id>', methods=['GET'])
 def download_chord(file_id):
