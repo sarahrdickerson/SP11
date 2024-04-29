@@ -138,6 +138,7 @@ def generateFile3():
     # running chord model on mp3 file
     print("Running chord model on mp3 file")
     chord_res = chordmodel(mp3_file_id)
+    print("Chord model response: ", str(chord_res))
     
     if chord_res['status'] == "success":
         chord_file_id = chord_res['lab_file_id']
