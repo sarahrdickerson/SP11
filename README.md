@@ -8,7 +8,8 @@ Ailegro stands at the forefront of innovation in music composition, leveraging A
 
 ## Demo
 
-[![Ailegro Demo](https://img.youtube.com/vi/1Q1Q1Q1Q1Q1Q/0.jpg)](https://youtu.be/_nEanupdHM8)
+Watch the demo video below to see Ailegro in action!
+[![Ailegro Demo](public/readme/demo_img.png)](https://youtu.be/_nEanupdHM8)
 
 ### Screenshots
 
